@@ -1105,11 +1105,11 @@ SE.composeLayout = {
         SE.tinyInstances[elId].ready = false;
 
         if (!SUGAR.util.isTouchScreen()) {
-            var t = tinyMCE.getInstanceById(elId);
+            var t = tinyMCE.get(elId);
         }
         if(typeof(t) == 'undefined')  {
             if (!SUGAR.util.isTouchScreen()) {
-                tinyMCE.execCommand('mceAddControl', false, elId);
+                tinyMCE.execCommand('mceAddEditor', false, elId);
             }
             YAHOO.util.Event.onAvailable(elId + "_parent", function() {
                 SE.composeLayout.resizeEditorSetSignature(idx,!isReplyForward);
@@ -1462,7 +1462,7 @@ SE.composeLayout = {
         var closeTag = '<span>&nbsp;</span></div>';
 
         // Get tinyMCE instance
-        var t = tinyMCE.getInstanceById('htmleditor' + idx);
+        var t = tinyMCE.get('htmleditor' + idx);
 
         // IE 6 Hack
         if(typeof(t) != 'undefined')
@@ -2159,7 +2159,7 @@ SE.composeLayout = {
         // destroy tinyMCE instance
         var idx = id.substr(13, id.length);
         var instanceId = "htmleditor" + idx;
-        tinyMCE.execCommand('mceRemoveControl', false, instanceId);
+        tinyMCE.execCommand('mceRemoveEditor', false, instanceId);
 
         // nullify DOM and namespace values.
         inCompose = false;
@@ -2549,7 +2549,7 @@ SE.util = {
             return null;
         }
 
-        var t = tinyMCE.getInstanceById(instanceId);
+        var t = tinyMCE.get(instanceId);
 
         if(this.isIe()) {
             this.sleep(200);

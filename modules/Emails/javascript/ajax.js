@@ -1507,7 +1507,7 @@ var callbackReplyForward = {
 			isReOrFwDraft = 0;
 		}
 		var idx = SUGAR.email2.composeLayout.currentInstanceId;
-		var t = tinyMCE.getInstanceById('htmleditor' + idx);
+		var t = tinyMCE.get('htmleditor' + idx);
         try {
 			var html = t.getContent();
 

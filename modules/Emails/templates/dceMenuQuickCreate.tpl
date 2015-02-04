@@ -46,7 +46,7 @@ function closeEmailOverlay() {
 
 	if(typeof SUGAR.quickCompose.parentPanel != 'undefined' && SUGAR.quickCompose.parentPanel != null) {
        if(tinyMCE) {
-    	  tinyMCE.execCommand('mceRemoveControl', false, 'htmleditor0'); 
+    	  tinyMCE.execCommand('mceRemoveEditor', false, 'htmleditor0');
        }
        SUGAR.quickCompose.parentPanel.hide();
        SUGAR.quickCompose.parentPanel = null;

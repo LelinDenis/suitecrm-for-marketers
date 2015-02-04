@@ -64,13 +64,13 @@
 <script type="text/javascript" language="Javascript">
 SUGAR.ajaxLoad = true;
 {if $hideLevel < 5}
-    setTimeout("tinyMCE.execCommand('mceAddControl', false, 'htmlarea');", 500);  
-	ModuleBuilder.tabPanel.get("activeTab").closeEvent.subscribe(function(){ldelim}tinyMCE.execCommand('mceRemoveControl', false, 'htmlarea');{rdelim});
+    setTimeout("tinyMCE.execCommand('mceAddEditor', false, 'htmlarea');", 500);
+	ModuleBuilder.tabPanel.get("activeTab").closeEvent.subscribe(function(){ldelim}tinyMCE.execCommand('mceRemoveEditor', false, 'htmlarea');{rdelim});
 	setTimeout("document.forms.popup_form.required.value = false;YAHOO.util.Dom.getAncestorByTagName(document.forms.popup_form.required, 'tr').style.display='none';", 500);
 {/if}
 {literal}
 document.popup_form.presave = function(){
-    var tiny = tinyMCE.getInstanceById('htmlarea');
+    var tiny = tinyMCE.get('htmlarea');
     if ( (null != tiny) || ("undefined" != typeof(tiny)) ) {
          document.getElementById('ext4').value = tiny.getContent();
     } else {

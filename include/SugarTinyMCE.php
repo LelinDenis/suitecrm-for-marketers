@@ -50,7 +50,7 @@ if(!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
  * PHP wrapper class for Javascript driven TinyMCE WYSIWYG HTML editor
  */
 class SugarTinyMCE {
-	var $jsroot = "include/javascript/tiny_mce/";
+	var $jsroot = "include/javascript/tinymce/";
 	var $customConfigFile = 'custom/include/tinyButtonConfig.php';
 	var $customDefaultConfigFile = 'custom/include/tinyMCEDefaultConfig.php';
 	var $buttonConfigs = array(
@@ -60,7 +60,7 @@ class SugarTinyMCE {
 	                    'buttonConfig2' => "cut,copy,paste,pastetext,pasteword,selectall,separator,search,replace,separator,bullist,numlist,separator,outdent,
 	                     					indent,separator,ltr,rtl,separator,undo,redo,separator, link,unlink,anchor,image,separator,sub,sup,separator,charmap,
 	                     					visualaid",
-	                    'buttonConfig3' => "tablecontrols,separator,advhr,hr,removeformat,separator,insertdate,inserttime,separator,preview"),
+	                    'buttonConfig3' => "tablecontrols,separator,hr,removeformat,separator,insertdate,inserttime,separator,preview"),
 	        'email_compose' => array(
 						'buttonConfig' => "code,help,separator,bold,italic,underline,strikethrough,separator,bullist,numlist,separator,justifyleft,justifycenter,justifyright,
 	                     					justifyfull,separator,forecolor,backcolor,separator,styleselect,formatselect,fontselect,fontsizeselect,",
@@ -75,7 +75,7 @@ class SugarTinyMCE {
 
 	var $pluginsConfig = array(
 	    'email_compose_light' => 'insertdatetime,paste,directionality,safari',
-        'email_compose' => 'advhr,insertdatetime,table,preview,paste,searchreplace,directionality,fullpage',
+        'email_compose' => 'insertdatetime,table,preview,paste,searchreplace,directionality,fullpage',
 	);
 
 	var $defaultConfig = array(
@@ -83,7 +83,7 @@ class SugarTinyMCE {
         'valid_children' => '+body[style]',
 	    'height' => 300,
 		'width'	=> '100%',
-		'theme'	=> 'advanced',
+		'theme'	=> 'modern',
 		'theme_advanced_toolbar_align' => "left",
 		'theme_advanced_toolbar_location'	=> "top",
 		'theme_advanced_buttons1'	=> "",
@@ -92,7 +92,7 @@ class SugarTinyMCE {
 		'strict_loading_mode'	=> true,
 		'mode'	=> 'exact',
 		'language' => 'en',
-	    'plugins' => 'advhr,insertdatetime,table,preview,paste,searchreplace,directionality',
+	    'plugins' => 'insertdatetime,table,preview,paste,searchreplace,directionality',
 		'elements'	=> '',
         'extended_valid_elements' => 'style[dir|lang|media|title|type],hr[class|width|size|noshade],@[class|style]',
         'content_css' => 'include/javascript/tiny_mce/themes/advanced/skins/default/content.css',
@@ -140,10 +140,10 @@ class SugarTinyMCE {
 		if (!empty($targets)) {
 			$exTargets = explode(",", $targets);
 			foreach($exTargets as $instance) {
-				//$instantiateCall .= "tinyMCE.execCommand('mceAddControl', false, document.getElementById('{$instance}'));\n";
+				//$instantiateCall .= "tinyMCE.execCommand('mceAddEditor', false, document.getElementById('{$instance}'));\n";
 			}
 		}
-		$path = getJSPath('include/javascript/tiny_mce/tiny_mce.js');
+		$path = getJSPath('include/javascript/tinymce/tinymce.min.js');
 		$ret =<<<eoq
 <script type="text/javascript" language="Javascript" src="$path"></script>
 

@@ -85,7 +85,7 @@ SUGAR.quickCompose = function() {
     		if (SQ.parentPanel != null)
     		{
     			//First clean up the tinyMCE instance
-    			tinyMCE.execCommand('mceRemoveControl', false, SUGAR.email2.tinyInstances.currentHtmleditor);
+    			tinyMCE.execCommand('mceRemoveEditor', false, SUGAR.email2.tinyInstances.currentHtmleditor);
     			SUGAR.email2.tinyInstances[SUGAR.email2.tinyInstances.currentHtmleditor] = null;
     			SUGAR.email2.tinyInstances.currentHtmleditor = "";
     			SQ.parentPanel.destroy();
@@ -261,7 +261,7 @@ SUGAR.quickCompose = function() {
 				    name :"tinymce",
 				    type : "js",
 				    varName: "TinyMCE",
-				    fullpath: "include/javascript/tiny_mce/tiny_mce.js"
+				    fullpath: "include/javascript/tinymce/tinymce.min.js"
 				});
 
 				//Load the Sugar widgets with dependancies on the yui library.

@@ -242,7 +242,7 @@ HTML;
 		var df = '{$locale->getPrecedentPreference('default_date_format')}';
  		
  		tinyMCE.init({
-    		theme : "advanced",
+    		theme : "modern",
     		theme_advanced_toolbar_align : "left",
     		mode: "exact",
 			elements : "description",
@@ -251,7 +251,7 @@ HTML;
 			theme_advanced_buttons2: "cut,copy,paste,pastetext,pasteword,selectall,separator,search,replace,separator,bullist,numlist,separator,outdent,indent,separator,ltr,rtl,separator,undo,redo,separator, link,unlink,anchor,image,separator,sub,sup,separator,charmap,visualaid",
 			theme_advanced_buttons3: "tablecontrols,separator,advhr,hr,removeformat,separator,insertdate,pagebreak",
 			theme_advanced_fonts:"Andale Mono=andale mono,times;Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;Comic Sans MS=comic sans ms,sans-serif;Courier New=courier new,courier;Georgia=georgia,palatino;Helvetica=helvetica;Helvetica Neu=helveticaneue,sans-serif;Impact=impact,chicago;Symbol=symbol;Tahoma=tahoma,arial,helvetica,sans-serif;Terminal=terminal,monaco;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva;Webdings=webdings;Wingdings=wingdings,zapf dingbats",
-			plugins : "advhr,insertdatetime,table,paste,searchreplace,directionality,style,pagebreak",
+			plugins : "insertdatetime,table,paste,searchreplace,directionality,pagebreak",
 			height:"500",
 			width: "100%",
 			inline_styles : true,
@@ -264,11 +264,11 @@ HTML;
 			plugin_insertdate_dateFormat : '{DATE '+df+'}',
 			pagebreak_separator : "<pagebreak />",
 			extended_valid_elements : "textblock",
-			custom_elements: "textblock",
+			custom_elements: "textblock"
 		});
 		
 		tinyMCE.init({
-    		theme : "advanced",
+    		theme : "modern",
     		theme_advanced_toolbar_align : "left",
     		mode: "exact",
 			elements : "pdfheader,pdffooter",
@@ -277,7 +277,7 @@ HTML;
 			theme_advanced_buttons2 : "",
     		theme_advanced_buttons3 : "",
     		theme_advanced_fonts:"Andale Mono=andale mono,times;Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;Comic Sans MS=comic sans ms,sans-serif;Courier New=courier new,courier;Georgia=georgia,palatino;Helvetica=helvetica;Helvetica Neu=helveticaneue,sans-serif;Impact=impact,chicago;Symbol=symbol;Tahoma=tahoma,arial,helvetica,sans-serif;Terminal=terminal,monaco;Times New Roman=times new roman,times;Trebuchet MS=trebuchet ms,geneva;Verdana=verdana,geneva;Webdings=webdings;Wingdings=wingdings,zapf dingbats",
-			plugins : "advhr,insertdatetime,table,paste,searchreplace,directionality,style",
+			plugins : "insertdatetime,table,paste,searchreplace,directionality",
 			width: "100%",
 			inline_styles : true,
 			directionality : "ltr",
@@ -288,7 +288,7 @@ HTML;
 			remove_redundant_brs : true,
 			plugin_insertdate_dateFormat : '{DATE '+df+'}',
 			extended_valid_elements : "textblock",
-			custom_elements: "textblock",
+			custom_elements: "textblock"
 		});
 
 		</script>
