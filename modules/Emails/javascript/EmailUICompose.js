@@ -1107,7 +1107,7 @@ SE.composeLayout = {
         if (!SUGAR.util.isTouchScreen()) {
             var t = tinyMCE.get(elId);
         }
-        if(typeof(t) == 'undefined')  {
+        if(t == null)  {
             if (!SUGAR.util.isTouchScreen()) {
                 tinyMCE.execCommand('mceAddEditor', false, elId);
             }
