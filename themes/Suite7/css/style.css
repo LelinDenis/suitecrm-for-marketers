@@ -5311,3 +5311,7 @@ div.password {
     max-width:250px !important;
     max-height:250px !important;
 }
+
+.mce-btn button:hover{
+    background:none;
+}
