@@ -1,4 +1,5 @@
 <?php
+//ini_set('display_errors',1);
 if(!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
 /*********************************************************************************
  * SugarCRM Community Edition is a customer relationship management program developed by
@@ -38,333 +39,40 @@ if(!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
  * display the words  "Powered by SugarCRM" and "Supercharged by SuiteCRM".
  ********************************************************************************/
 
-
-require_once("include/upload_file.php");
-require_once('include/utils/db_utils.php');
-
-global $currentModule;
-
-global $focus;
-global $action;
-
-global $app_strings;
-global $app_list_strings;
-//we don't want the parent module's string file, but rather the string file specifc to this subpanel
-global $current_language,$beanList,$beanFiles;
-$current_module_strings = return_module_language($current_language, 'Activities');
-
-// history_list is the means of passing data to a SubPanelView.
-$bean = $beanList[$_REQUEST['module_name']];
-require_once($beanFiles[$bean]);
-$focus = new $bean;
-
 class Popup_Picker
 {
 
-
     /**
-    * sole constructor
-    */
+     * sole constructor
+     */
     function Popup_Picker() {
     }
 
     /**
-    *
-    */
+     *
+     */
     function process_page() {
-        global $focus;
-        global $mod_strings;
-        global $app_strings;
-        global $app_list_strings;
-        global $currentModule;
-        global $odd_bg;
-        global $even_bg;
 
-        global $timedate;
+        global $beanList, $beanFiles, $mod_strings, $app_strings;
 
+        $bean = $beanList[$_REQUEST['module_name']];
+        require_once($beanFiles[$bean]);
+        $focus = new $bean;
 
-        $history_list = array();
+        if(!empty($_REQUEST['record'])) {
 
-		if(!empty($_REQUEST['record'])) {
-   			$result = $focus->retrieve($_REQUEST['record']);
-    		if($result == null)
-    		{
-    			sugar_die($app_strings['ERROR_NO_RECORD']);
-    		}
-		}
-
-		$activitiesRels = array('tasks' => 'Task', 'meetings' => 'Meeting', 'calls' => 'Call', 'emails' => 'Email', 'notes' => 'Note');
-		//Setup the arrays to store the linked records.
-		foreach($activitiesRels as $relMod => $beanName) {
-	    	$varname = "focus_" . $relMod . "_list";
-	        $$varname = array();
-	    }
-		foreach($focus->get_linked_fields() as $field => $def) {
-			if ($focus->load_relationship($field)) {
-				$relTable = $focus->$field->getRelatedTableName();
-	        	if (in_array($relTable, array_keys($activitiesRels)))
-        		{
-        			$varname = "focus_" . $relTable . "_list";
-        			$$varname = sugarArrayMerge($$varname, $focus->get_linked_beans($field,$activitiesRels[$relTable]));
-        		}
-
-			}
-		}
-
-		foreach ($focus_tasks_list as $task) {
-			$sort_date_time='';
-			if (empty($task->date_due) || $task->date_due == '0000-00-00') {
-				$date_due = '';
-			}
-			else {
-				$date_due = $task->date_due;
-			}
-
-			if ($task->status != "Not Started" && $task->status != "In Progress" && $task->status != "Pending Input") {
-                $ts = '';
-                if(!empty($task->fetched_row['date_due'])) {
-                    //tasks can have an empty date due field
-                    $ts = $timedate->fromDb($task->fetched_row['date_due'])->ts;
-                }
-				$history_list[] = array('name' => $task->name,
-									 'id' => $task->id,
-									 'type' => "Task",
-									 'direction' => '',
-									 'module' => "Tasks",
-									 'status' => $task->status,
-									 'parent_id' => $task->parent_id,
-									 'parent_type' => $task->parent_type,
-									 'parent_name' => $task->parent_name,
-									 'contact_id' => $task->contact_id,
-									 'contact_name' => $task->contact_name,
-									 'date_modified' => $date_due,
-									 'description' => $this->getTaskDetails($task),
-									 'date_type' => $app_strings['DATA_TYPE_DUE'],
-									 'sort_value' => $ts,
-									 );
-			} else {
-				$open_activity_list[] = array('name' => $task->name,
-									 'id' => $task->id,
-									 'type' => "Task",
-									 'direction' => '',
-									 'module' => "Tasks",
-									 'status' => $task->status,
-									 'parent_id' => $task->parent_id,
-									 'parent_type' => $task->parent_type,
-									 'parent_name' => $task->parent_name,
-									 'contact_id' => $task->contact_id,
-									 'contact_name' => $task->contact_name,
-									 'date_due' => $date_due,
-									 'description' => $this->getTaskDetails($task),
-									 'date_type' => $app_strings['DATA_TYPE_DUE']
-									 );
-			}
-		} // end Tasks
-
-		foreach ($focus_meetings_list as $meeting) {
-
-			if (empty($meeting->contact_id) && empty($meeting->contact_name)) {
-				$meeting_contacts = $meeting->get_linked_beans('contacts','Contact');
-				if (!empty($meeting_contacts[0]->id) && !empty($meeting_contacts[0]->name)) {
-					$meeting->contact_id = $meeting_contacts[0]->id;
-					$meeting->contact_name = $meeting_contacts[0]->name;
-				}
-			}
-			if ($meeting->status != "Planned") {
-				$history_list[] = array('name' => $meeting->name,
-									 'id' => $meeting->id,
-									 'type' => "Meeting",
-									 'direction' => '',
-									 'module' => "Meetings",
-									 'status' => $meeting->status,
-									 'parent_id' => $meeting->parent_id,
-									 'parent_type' => $meeting->parent_type,
-									 'parent_name' => $meeting->parent_name,
-									 'contact_id' => $meeting->contact_id,
-									 'contact_name' => $meeting->contact_name,
-									 'date_modified' => $meeting->date_start,
-									 'description' => $this->formatDescription($meeting->description),
-									 'date_type' => $app_strings['DATA_TYPE_START'],
-									 'sort_value' => $timedate->fromDb($meeting->fetched_row['date_start'])->ts,
-									 );
-			} else {
-				$open_activity_list[] = array('name' => $meeting->name,
-									 'id' => $meeting->id,
-									 'type' => "Meeting",
-									 'direction' => '',
-									 'module' => "Meetings",
-									 'status' => $meeting->status,
-									 'parent_id' => $meeting->parent_id,
-									 'parent_type' => $meeting->parent_type,
-									 'parent_name' => $meeting->parent_name,
-									 'contact_id' => $meeting->contact_id,
-									 'contact_name' => $meeting->contact_name,
-									 'date_due' => $meeting->date_start,
-									 'description' => $this->formatDescription($meeting->description),
-									 'date_type' => $app_strings['DATA_TYPE_START']
-									 );
-			}
-		} // end Meetings
-
-		foreach ($focus_calls_list as $call) {
-
-			if (empty($call->contact_id) && empty($call->contact_name)) {
-				$call_contacts = $call->get_linked_beans('contacts','Contact');
-				if (!empty($call_contacts[0]->id) && !empty($call_contacts[0]->name)) {
-					$call->contact_id = $call_contacts[0]->id;
-					$call->contact_name = $call_contacts[0]->name;
-				}
-			}
-
-			if ($call->status != "Planned") {
-				$history_list[] = array('name' => $call->name,
-									 'id' => $call->id,
-									 'type' => "Call",
-									 'direction' => $call->direction,
-									 'module' => "Calls",
-									 'status' => $call->status,
-									 'parent_id' => $call->parent_id,
-									 'parent_type' => $call->parent_type,
-									 'parent_name' => $call->parent_name,
-									 'contact_id' => $call->contact_id,
-									 'contact_name' => $call->contact_name,
-									 'date_modified' => $call->date_start,
-									 'description' => $this->formatDescription($call->description),
-									 'date_type' => $app_strings['DATA_TYPE_START'],
-									 'sort_value' => $timedate->fromDb($call->fetched_row['date_start'])->ts,
-									 );
-			} else {
-				$open_activity_list[] = array('name' => $call->name,
-									 'id' => $call->id,
-									 'direction' => $call->direction,
-									 'type' => "Call",
-									 'module' => "Calls",
-									 'status' => $call->status,
-									 'parent_id' => $call->parent_id,
-									 'parent_type' => $call->parent_type,
-									 'parent_name' => $call->parent_name,
-									 'contact_id' => $call->contact_id,
-									 'contact_name' => $call->contact_name,
-									 'date_due' => $call->date_start,
-									 'description' => $this->formatDescription($call->description),
-									 'date_type' => $app_strings['DATA_TYPE_START']
-									 );
-			}
-		} // end Calls
-
-		foreach ($focus_emails_list as $email) {
-
-			if (empty($email->contact_id) && empty($email->contact_name)) {
-				$email_contacts = $email->get_linked_beans('contacts','Contact');
-				if (!empty($email_contacts[0]->id) && !empty($email_contacts[0]->name)) {
-					$email->contact_id = $email_contacts[0]->id;
-					$email->contact_name = $email_contacts[0]->name;
-				}
-			}
-			$ts = '';
-			if(!empty($email->fetched_row['date_sent'])) {
-			    //emails can have an empty date sent field
-			    $ts = $timedate->fromDb($email->fetched_row['date_sent'])->ts;
-			}
-			$history_list[] = array('name' => $email->name,
-									 'id' => $email->id,
-									 'type' => "Email",
-									 'direction' => '',
-									 'module' => "Emails",
-									 'status' => '',
-									 'parent_id' => $email->parent_id,
-									 'parent_type' => $email->parent_type,
-									 'parent_name' => $email->parent_name,
-									 'contact_id' => $email->contact_id,
-									 'contact_name' => $email->contact_name,
-									 'date_modified' => $email->date_start." ".$email->time_start,
-									 'description' => $this->getEmailDetails($email),
-									 'date_type' => $app_strings['DATA_TYPE_SENT'],
-									 'sort_value' => $ts,
-									 );
-		} //end Emails
-
-        // Bug 46439 'No email archived when clicking on View Summary' (All condition)
-        if (method_exists($focus,'get_unlinked_email_query'))
-        {
-            $queryArray = $focus->get_unlinked_email_query(array('return_as_array'=>'true'));
-            $query = $queryArray['select'];
-            $query .= $queryArray['from'];
-            if (!empty($queryArray['join_tables']))
+            $result = $focus->retrieve($_REQUEST['record']);
+            if($result == null)
             {
-                foreach ($queryArray['join_tables'] as $join_table)
-                {
-                    if ($join_table != '')
-                    {
-                        $query .= ', '.$join_table.' ';
-                    }
-                }
+                sugar_die($app_strings['ERROR_NO_RECORD']);
             }
-            $query .= $queryArray['join'];
-            $query .= $queryArray['where'];
-            $emails = new Email();
-            $focus_unlinked_emails_list = $emails->process_list_query($query, 0);
-            $focus_unlinked_emails_list = $focus_unlinked_emails_list['list'];
-            foreach ($focus_unlinked_emails_list as $email)
-            {
-                $email->retrieve($email->id);
-                $history_list[] = array(
-                    'name' => $email->name,
-                    'id' => $email->id,
-                    'type' => "Email",
-                    'direction' => '',
-                    'module' => "Emails",
-                    'status' => '',
-                    'parent_id' => $email->parent_id,
-                    'parent_type' => $email->parent_type,
-                    'parent_name' => $email->parent_name,
-                    'contact_id' => $email->contact_id,
-                    'contact_name' => $email->contact_name,
-                    'date_modified' => $email->date_start." ".$email->time_start,
-                    'description' => $this->getEmailDetails($email),
-                    'date_type' => $app_strings['DATA_TYPE_SENT'],
-                    'sort_value' => strtotime($email->fetched_row['date_sent'].' GMT'),
-                );
-            }
-        } //end Unlinked Emails
-
-		foreach ($focus_notes_list as $note)
-        {
-			if ($note->ACLAccess('view'))
-            {
-                $history_list[] = array('name' => $note->name,
-                                         'id' => $note->id,
-                                         'type' => "Note",
-                                         'direction' => '',
-                                         'module' => "Notes",
-                                         'status' => '',
-                                         'parent_id' => $note->parent_id,
-                                         'parent_type' => $note->parent_type,
-                                         'parent_name' => $note->parent_name,
-                                         'contact_id' => $note->contact_id,
-                                         'contact_name' => $note->contact_name,
-                                         'date_modified' => $note->date_modified,
-                                         'description' => $this->formatDescription($note->description),
-                                         'date_type' => $app_strings['DATA_TYPE_MODIFIED'],
-                                         'sort_value' => strtotime($note->fetched_row['date_modified'].' GMT'),
-                                         );
-                if(!empty($note->filename))
-                {
-                    $count = count($history_list);
-                    $count--;
-                    $history_list[$count]['filename'] = $note->filename;
-                    $history_list[$count]['fileurl'] = UploadFile::get_url($note->filename,$note->id);
-                }
-            }
-
-		} // end Notes
+        }
 
         $xtpl=new XTemplate ('modules/Activities/Popup_picker.html');
 
         $xtpl->assign('MOD', $mod_strings);
         $xtpl->assign('APP', $app_strings);
         insert_popup_header();
-
         //output header
         echo "<table width='100%' cellpadding='0' cellspacing='0'><tr><td>";
         echo getClassicModuleTitle($focus->module_dir, array(translate('LBL_MODULE_NAME', $focus->module_dir),$focus->name), false);
@@ -372,115 +80,81 @@ class Popup_Picker
         echo "<A href='javascript:print();' class='utilsLink'>" . SugarThemeRegistry::current()->getImage('print', "border='0' align='absmiddle'", 13, 13, ".gif", $app_strings['LNK_PRINT']) . "</a>&nbsp;<A href='javascript:print();' class='utilsLink'>".$app_strings['LNK_PRINT']."</A>\n";
         echo "</td></tr></table>";
 
-        $oddRow = true;
-        if (count($history_list) > 0) $history_list = array_csort($history_list, 'sort_value', SORT_DESC);
-        foreach($history_list as $activity)
-        {
-            $activity_fields = array(
-                'ID' => $activity['id'],
-                'NAME' => $activity['name'],
-                'MODULE' => $activity['module'],
-                'CONTACT_NAME' => $activity['contact_name'],
-                'CONTACT_ID' => $activity['contact_id'],
-                'PARENT_TYPE' => $activity['parent_type'],
-                'PARENT_NAME' => $activity['parent_name'],
-                'PARENT_ID' => $activity['parent_id'],
-                'DATE' => $activity['date_modified'],
-                'DESCRIPTION' => $activity['description'],
-                'DATE_TYPE' => $activity['date_type']
-            );
-            if (empty($activity['direction'])) {
-                $activity_fields['TYPE'] = $app_list_strings['activity_dom'][$activity['type']];
-            }
-            else {
-                $activity_fields['TYPE'] = $app_list_strings['call_direction_dom'][$activity['direction']].' '.$app_list_strings['activity_dom'][$activity['type']];
-            }
+        $this->getSummaryView($xtpl);
 
-            switch ($activity['type']) {
-                case 'Call':
-                    $activity_fields['STATUS'] = $app_list_strings['call_status_dom'][$activity['status']];
-                    break;
-                case 'Meeting':
-                    $activity_fields['STATUS'] = $app_list_strings['meeting_status_dom'][$activity['status']];
-                    break;
-                case 'Task':
-                    $activity_fields['STATUS'] = $app_list_strings['task_status_dom'][$activity['status']];
-                    break;
-            }
+        $xtpl->parse("history");
+        $xtpl->out("history");
+        insert_popup_footer();
+    }
 
-            if (isset($activity['location'])) $activity_fields['LOCATION'] = $activity['location'];
-            if (isset($activity['filename'])) {
-                $activity_fields['ATTACHMENT'] = "<a href='index.php?entryPoint=download&id=".$activity['id']."&type=Notes' target='_blank'>".SugarThemeRegistry::current()->getImage("attachment","border='0' align='absmiddle'",null,null,'.gif',$activity['filename'])."</a>";
-            }
+    function getSummaryView($xtpl, $offset = 0){
 
-            if (isset($activity['parent_type'])) $activity_fields['PARENT_MODULE'] = $activity['parent_type'];
+        global $db, $app_list_strings;
 
-            $xtpl->assign("ACTIVITY", $activity_fields);
-            $xtpl->assign("ACTIVITY_MODULE_PNG", SugarThemeRegistry::current()->getImage($activity_fields['MODULE'].'','border="0"', null,null,'.gif',$activity_fields['NAME']));
+        $max_rows = 40;
 
-            if($oddRow)
-            {
-                //todo move to themes
-                $xtpl->assign("ROW_COLOR", 'oddListRow');
-                $xtpl->assign("BG_COLOR", $odd_bg);
-            }
-            else
-            {
-                //todo move to themes
-                $xtpl->assign("ROW_COLOR", 'evenListRow');
-                $xtpl->assign("BG_COLOR", $even_bg);
-            }
-            $oddRow = !$oddRow;
-            if(!empty($activity_fields['DESCRIPTION'])) {
-                $xtpl->parse("history.row.description");
-            }
-            $xtpl->parse("history.row");
-        // Put the rows in.
+        $query = $this->getSummaryQuery();
+        $result = $db->limitQuery($query,$offset,$max_rows);
+
+        while ($activity = $db->fetchByAssoc($result)) {
+
+                $bean = BeanFactory::getBean($activity['module'],$activity['id']);
+
+                if (!$bean->ACLAccess('view')) continue;
+
+                $activity_fields = array(
+                    'ID' => $bean->id,
+                    'NAME' => $bean->name,
+                    'MODULE' => $activity['module'],
+                    'CONTACT_NAME' => $activity['contact_name'],
+                    'CONTACT_ID' => $activity['contact_id'],
+//                    'PARENT_TYPE' => $activity['parent_type'],
+//                    'PARENT_NAME' => $activity['parent_name'],
+//                    'PARENT_ID' => $activity['parent_id'],
+                    'DATE' => $bean->date_modified,
+                    'DESCRIPTION' => $bean->description,
+                    'DATE_TYPE' => $activity['date_type']
+                );
+                if (empty($activity['direction'])) {
+                    $activity_fields['TYPE'] = $app_list_strings['activity_dom'][$activity['type']];
+                } else {
+                    $activity_fields['TYPE'] = $app_list_strings['call_direction_dom'][$activity['direction']] . ' ' . $app_list_strings['activity_dom'][$activity['type']];
+                }
+
+                switch ($activity['type']) {
+                    case 'Call':
+                        $activity_fields['STATUS'] = $app_list_strings['call_status_dom'][$activity['status']];
+                        break;
+                    case 'Meeting':
+                        $activity_fields['STATUS'] = $app_list_strings['meeting_status_dom'][$activity['status']];
+                        break;
+                    case 'Task':
+                        $activity_fields['STATUS'] = $app_list_strings['task_status_dom'][$activity['status']];
+                        break;
+                }
+
+                if (isset($activity['filename']) && trim($activity['filename']) != '') {
+                    $activity_fields['ATTACHMENT'] = "<a href='index.php?entryPoint=download&id=" . $activity['id'] . "&type=Notes' target='_blank'>" . SugarThemeRegistry::current()->getImage("attachment", "border='0' align='absmiddle'", null, null, '.gif', $activity['filename']) . "</a>";
+                }
+
+                if (isset($activity['parent_type'])) $activity_fields['PARENT_MODULE'] = $activity['parent_type'];
+
+                $xtpl->assign("ACTIVITY", $activity_fields);
+                $xtpl->assign("ACTIVITY_MODULE_PNG", SugarThemeRegistry::current()->getImage($activity_fields['MODULE'] . '', 'border="0"', null, null, '.gif', $activity_fields['NAME']));
+
+
+                if (!empty($activity_fields['DESCRIPTION'])) {
+                    $xtpl->parse("history.row.description");
+                }
+                $xtpl->parse("history.row");
+                // Put the rows in.
+        }
+
+    }
+
+    function getSummaryQuery(){
+
+        return "(SELECT 'Tasks' as module, tasks.id , tasks.name , tasks.status , LTRIM(RTRIM(CONCAT(IFNULL(contacts.first_name,''),' ',IFNULL(contacts.last_name,'')))) contact_name , tasks.contact_id , ' ' contact_name_owner , ' ' contact_name_mod , tasks.date_modified , tasks.date_entered , tasks.date_due as date_start , jt1.user_name assigned_user_name , tasks.assigned_user_id , jt1.created_by assigned_user_name_owner , 'Users' assigned_user_name_mod, 0 reply_to_status , tasks.parent_id , tasks.parent_type , ' ' filename , ' ' assigned_user_owner , ' ' assigned_user_mod , tasks.created_by , 'tasks' panel_name, NULL recurring_source FROM tasks LEFT JOIN contacts contacts ON tasks.contact_id=contacts.id AND contacts.deleted=0 AND contacts.deleted=0 LEFT JOIN users jt1 ON tasks.assigned_user_id=jt1.id AND jt1.deleted=0 AND jt1.deleted=0 INNER JOIN contacts tasks_rel ON tasks.contact_id=tasks_rel.id AND tasks_rel.deleted=0 where ( tasks.contact_id='51d35755-fb4a-5078-69e6-5540e8336fa5' AND (tasks.status='Completed' OR tasks.status='Deferred')) AND tasks.deleted=0) UNION ALL ( SELECT 'Tasks' as module, tasks.id , tasks.name , tasks.status , LTRIM(RTRIM(CONCAT(IFNULL(contacts.first_name,''),' ',IFNULL(contacts.last_name,'')))) contact_name , tasks.contact_id , ' ' contact_name_owner , ' ' contact_name_mod , tasks.date_modified , tasks.date_entered , tasks.date_due as date_start , jt1.user_name assigned_user_name , tasks.assigned_user_id , jt1.created_by assigned_user_name_owner , 'Users' assigned_user_name_mod, 0 reply_to_status , tasks.parent_id , tasks.parent_type , ' ' filename , ' ' assigned_user_owner , ' ' assigned_user_mod , tasks.created_by , 'tasks_parent' panel_name, NULL recurring_source FROM tasks LEFT JOIN contacts contacts ON tasks.contact_id=contacts.id AND contacts.deleted=0 AND contacts.deleted=0 LEFT JOIN users jt1 ON tasks.assigned_user_id=jt1.id AND jt1.deleted=0 AND jt1.deleted=0 INNER JOIN contacts tasks_parent_rel ON tasks.parent_id=tasks_parent_rel.id AND tasks_parent_rel.deleted=0 AND tasks.parent_type = 'Contacts' where ( tasks.parent_id='51d35755-fb4a-5078-69e6-5540e8336fa5' AND (tasks.status='Completed' OR tasks.status='Deferred')) AND tasks.deleted=0 ) UNION ALL ( SELECT 'Meetings' as module, meetings.id , meetings.name , meetings.status , ' ' contact_name , ' ' contact_id , ' ' contact_name_owner , ' ' contact_name_mod , meetings.date_modified , meetings.date_entered , meetings.date_start , jt1.user_name assigned_user_name , meetings.assigned_user_id , jt1.created_by assigned_user_name_owner , 'Users' assigned_user_name_mod, 0 reply_to_status , meetings.parent_id , meetings.parent_type , ' ' filename , ' ' assigned_user_owner , ' ' assigned_user_mod , meetings.created_by , 'meetings' panel_name, meetings.recurring_source FROM meetings LEFT JOIN meetings_cstm ON meetings.id = meetings_cstm.id_c LEFT JOIN users jt1 ON meetings.assigned_user_id=jt1.id AND jt1.deleted=0 AND jt1.deleted=0 INNER JOIN meetings_contacts ON meetings.id=meetings_contacts.meeting_id AND meetings_contacts.contact_id='51d35755-fb4a-5078-69e6-5540e8336fa5' AND meetings_contacts.deleted=0 where ((meetings.status='Held' OR meetings.status='Not Held')) AND meetings.deleted=0 ) UNION ALL ( SELECT 'Calls' as module, calls.id , calls.name , calls.status , ' ' contact_name , ' ' contact_id , ' ' contact_name_owner , ' ' contact_name_mod , calls.date_modified , calls.date_entered , calls.date_start , jt1.user_name assigned_user_name , calls.assigned_user_id , jt1.created_by assigned_user_name_owner , 'Users' assigned_user_name_mod, 0 reply_to_status , calls.parent_id , calls.parent_type , ' ' filename , ' ' assigned_user_owner , ' ' assigned_user_mod , calls.created_by , 'calls' panel_name, calls.recurring_source FROM calls LEFT JOIN users jt1 ON calls.assigned_user_id=jt1.id AND jt1.deleted=0 AND jt1.deleted=0 INNER JOIN calls_contacts ON calls.id=calls_contacts.call_id AND calls_contacts.contact_id='51d35755-fb4a-5078-69e6-5540e8336fa5' AND calls_contacts.deleted=0 where ((calls.status='Held' OR calls.status='Not Held')) AND calls.deleted=0 ) UNION ALL ( SELECT 'Notes' as module, notes.id , notes.name , ' ' status , LTRIM(RTRIM(CONCAT(IFNULL(contacts.first_name,''),' ',IFNULL(contacts.last_name,'')))) contact_name , notes.contact_id , ' ' contact_name_owner , ' ' contact_name_mod , notes.date_modified , notes.date_entered , NULL date_start, jt1.user_name assigned_user_name , notes.assigned_user_id , jt1.created_by assigned_user_name_owner , 'Users' assigned_user_name_mod, 0 reply_to_status , notes.parent_id , notes.parent_type , notes.filename , ' ' assigned_user_owner , ' ' assigned_user_mod , notes.created_by , 'notes' panel_name, NULL recurring_source FROM notes LEFT JOIN contacts contacts ON notes.contact_id=contacts.id AND contacts.deleted=0 AND contacts.deleted=0 LEFT JOIN users jt1 ON notes.assigned_user_id=jt1.id AND jt1.deleted=0 AND jt1.deleted=0 INNER JOIN contacts notes_rel ON notes.contact_id=notes_rel.id AND notes_rel.deleted=0 where ( notes.contact_id='51d35755-fb4a-5078-69e6-5540e8336fa5') AND notes.deleted=0 ) UNION ALL ( SELECT 'Emails' as module, emails.id , emails.name , emails.status , ' ' contact_name , ' ' contact_id , ' ' contact_name_owner , ' ' contact_name_mod , emails.date_modified , emails.date_entered , NULL date_start, jt0.user_name assigned_user_name , emails.assigned_user_id , jt0.created_by assigned_user_name_owner , 'Users' assigned_user_name_mod, emails.reply_to_status , emails.parent_id , emails.parent_type , ' ' filename , ' ' assigned_user_owner , ' ' assigned_user_mod , emails.created_by , 'emails' panel_name, NULL recurring_source FROM emails LEFT JOIN users jt0 ON emails.assigned_user_id=jt0.id AND jt0.deleted=0 AND jt0.deleted=0 INNER JOIN emails_beans ON emails.id=emails_beans.email_id AND emails_beans.bean_id='51d35755-fb4a-5078-69e6-5540e8336fa5' AND emails_beans.deleted=0 AND emails_beans.bean_module = 'Contacts' where emails.deleted=0 ) UNION ALL ( SELECT 'Emails' as module, emails.id , emails.name , emails.status , ' ' contact_name , ' ' contact_id , ' ' contact_name_owner , ' ' contact_name_mod , emails.date_modified , emails.date_entered , NULL date_start, jt0.user_name assigned_user_name , emails.assigned_user_id , jt0.created_by assigned_user_name_owner , 'Users' assigned_user_name_mod, emails.reply_to_status , emails.parent_id , emails.parent_type , ' ' filename , ' ' assigned_user_owner , ' ' assigned_user_mod , emails.created_by , 'linkedemails' panel_name, NULL recurring_source FROM emails LEFT JOIN users jt0 ON emails.assigned_user_id=jt0.id AND jt0.deleted=0 AND jt0.deleted=0 JOIN (select DISTINCT email_id from emails_email_addr_rel eear join email_addr_bean_rel eabr on eabr.bean_id ='51d35755-fb4a-5078-69e6-5540e8336fa5' and eabr.bean_module = 'Contacts' and eabr.email_address_id = eear.email_address_id and eabr.deleted=0 where eear.deleted=0 and eear.email_id not in (select eb.email_id from emails_beans eb where eb.bean_module ='Contacts' and eb.bean_id = '51d35755-fb4a-5078-69e6-5540e8336fa5') ) derivedemails on derivedemails.email_id = emails.id where emails.deleted=0 ) ORDER BY date_entered desc";
+    }
+
 }
-		$xtpl->parse("history");
-		$xtpl->out("history");
-		insert_popup_footer();
-	}
-
-	function getEmailDetails($email){
-		$details = "";
-
-		if(!empty($email->to_addrs)){
-			$details .= "To: ".$email->to_addrs."<br>";
-		}
-		if(!empty($email->from_addr)){
-			$details .= "From: ".$email->from_addr."<br>";
-		}
-		if(!empty($email->cc_addrs)){
-			$details .= "CC: ".$email->cc_addrs."<br>";
-		}
-		if(!empty($email->from_addr) || !empty($email->cc_addrs) || !empty($email->to_addrs)){
-			$details .= "<br>";
-		}
-
-		// cn: bug 8433 - history does not distinguish b/t text/html emails
-		$details .= empty($email->description_html)
-			? $this->formatDescription($email->description)
-			: $this->formatDescription(strip_tags(br2nl(from_html($email->description_html))));
-
-		return $details;
-	}
-
-	function getTaskDetails($task){
-		global $app_strings;
-
-		$details = "";
-		if (!empty($task->date_start) && $task->date_start != '0000-00-00') {
-			$details .= $app_strings['DATA_TYPE_START'].$task->date_start."<br>";
-			$details .= "<br>";
-		}
-		$details .= $this->formatDescription($task->description);
-
-		return $details;
-	}
-
-	function formatDescription($description){
-		return nl2br($description);
-	}
-} // end of class Popup_Picker
-?>
