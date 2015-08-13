@@ -92,7 +92,7 @@ class Popup_Picker
     {
 
         $offset = 0;
-        $activity_fields = $this->retrieve_and_format_data($offset,'100');
+        $activity_fields = $this->retrieve_and_format_data($offset,'80');
 
         foreach($activity_fields as $activity_row){
             $xtpl->assign("ACTIVITY", $activity_row);
@@ -108,7 +108,7 @@ class Popup_Picker
 
     }
 
-    public function retrieve_and_format_data($offset = 0, $max_rows = 20)
+    public function retrieve_and_format_data($offset = 0, $max_rows = 50)
     {
 
         global $db, $app_list_strings;
@@ -136,20 +136,17 @@ class Popup_Picker
                 'DATE_TYPE' => $activity['date_type']
             );
 
-            switch ($activity['type']) {
-                case 'Call':
+            switch ($activity['module']) {
+                case 'Calls':
                     $activity_fields[$i]['STATUS'] = $app_list_strings['call_status_dom'][$activity['status']];
-                    $activity_fields[$i]['TYPE'] = $app_list_strings['call_direction_dom'][$activity['direction']] . ' ' . $app_list_strings['activity_dom'][$activity['type']];
                     break;
-                case 'Meeting':
+                case 'Meetings':
                     $activity_fields[$i]['STATUS'] = $app_list_strings['meeting_status_dom'][$activity['status']];
-                    $activity_fields[$i]['TYPE'] = $app_list_strings['activity_dom'][$activity['type']];
                     break;
-                case 'Task':
+                case 'Tasks':
                     $activity_fields[$i]['STATUS'] = $app_list_strings['task_status_dom'][$activity['status']];
-                    $activity_fields[$i]['TYPE'] = $app_list_strings['activity_dom'][$activity['type']];
                     break;
-                case 'Note':
+                case 'Notes':
                     if (isset($activity['filename']) && trim($activity['filename']) != '') {
                         $activity_fields[$i]['ATTACHMENT'] = "<a href='index.php?entryPoint=download&id=" . $activity['id'] . "&type=Notes' target='_blank'>" . SugarThemeRegistry::current()->getImage("attachment", "border='0' align='absmiddle'", null, null, '.gif', $activity['filename']) . "</a>";
                     }
