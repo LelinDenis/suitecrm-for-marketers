@@ -2,11 +2,8 @@ var container = $('body');
 $(container).data("offset",0);
 
 $(window).scroll(function() {
-    console.log($(window).scrollTop());
-    if($(window).scrollTop() >= $(document).height() -1000) {
+    if($(window).scrollTop() + window.innerHeight == $(document).height()) {
         var offset = $(container).data("offset");
-        if (window.isRunning) return;
-        window.isRunning = true;
         $(container).data("offset",scroll_data_loader.load_summary_data(offset));
     }
 });
@@ -24,7 +21,7 @@ scroll_data_loader = {
 
   load_summary_data : function(offset){
 
-      offset = offset + 50;
+      offset = offset + 80;
 
           $.ajax({
               method: "POST",
@@ -80,8 +77,6 @@ scroll_data_loader = {
           }
 
       $('.list.view').append(html);
-      window.isRunning = false;
-
 
   }
 
