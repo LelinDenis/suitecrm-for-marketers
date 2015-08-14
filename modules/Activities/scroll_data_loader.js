@@ -42,7 +42,7 @@ scroll_data_loader = {
             method: "POST",
             url: "index.php?module=Activities&action=loadSummaryData",
             data: {'offset': offset, to_pdf: true},
-            type:'json'
+            dataType:'json'
         }) .always(function( result ) {
             jQuery.each($.parseJSON(result), function(key, value) {
 
