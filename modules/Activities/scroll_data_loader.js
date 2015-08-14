@@ -1,24 +1,29 @@
-var container = $('body');
-var currently_processing = false;
-
-$(container).data("offset",0);
-
-$(window).scroll(function() {
-    if($(window).scrollTop() + window.innerHeight == $(document).height()) {
-
-        if(currently_processing == true){
-            return;
-        }
-
-        currently_processing = true;
-
-        var offset = $(container).data("offset");
-
-        $(container).data("offset",scroll_data_loader.load_summary_data(offset));
-    }
-});
-
 $(document).ready(function(){
+
+    var container = $('body');
+
+    $('#loading').append('<img src="themes/' + theme_name + '/images/img_loading.gif"/>');
+
+    var currently_processing = false;
+
+    $(container).data("offset",0);
+
+    $(window).scroll(function() {
+        if($(window).scrollTop() + window.innerHeight == $(document).height()) {
+
+            if(currently_processing == true){
+                return;
+            }
+
+            currently_processing = true;
+
+            var offset = $(container).data("offset");
+
+            $(container).data("offset",scroll_data_loader.load_summary_data(offset));
+        }
+    });
+
+
     $(document).ajaxStart(function(){
         $('#loading').show();
     });
@@ -29,68 +34,72 @@ $(document).ready(function(){
 
 scroll_data_loader = {
 
-  load_summary_data : function(offset){
+    load_summary_data : function(offset){
 
-      offset = offset + 80;
+        offset = offset + 80;
 
-          $.ajax({
-              method: "POST",
-              url: "index.php?module=Activities&action=loadSummaryData",
-              data: {'offset': offset, to_pdf: true},
-              type:'json'
-          }) .always(function( result ) {
-              jQuery.each($.parseJSON(result), function(key, value) {
-                  scroll_data_loader.append_data(value);
-              });
-          });
+        $.ajax({
+            method: "POST",
+            url: "index.php?module=Activities&action=loadSummaryData",
+            data: {'offset': offset, to_pdf: true},
+            type:'json'
+        }) .always(function( result ) {
+            jQuery.each($.parseJSON(result), function(key, value) {
 
-      return offset;
-  },
+                console.log(result);
 
-  append_data : function(row_data){
+                scroll_data_loader.append_data(value);
+            });
+        });
 
-      var html =  '<tr height="20" class="oddListRowS1">';
+        return offset;
+    },
 
-          if(row_data['MODULE'] != '') {
-              html += '<td nowrap="nowrap" valign="top"><img src="themes/SuiteR/images/' + row_data['MODULE'] + '.gif"</td>';
-          }
-
-          if(row_data['NAME'] != '') {
-              html += '<td nowrap="nowrap" valign="top">' + row_data['NAME'] + '</td>';
-          }
-
-          if(row_data['STATUS'] != '' && typeof row_data['STATUS'] !== 'undefined'){
-              html += '<td nowrap="nowrap" valign="top">' + row_data['STATUS'] + '</td>';
-          }else{
-              html += '<td nowrap="nowrap" valign="top"></td>';
-          }
-
-          if(row_data['CONTACT_NAME'] != ''){
-              html += '<td valign="top">'+ row_data['CONTACT_NAME'] + '</td>';
-          }
-
-          if(row_data['DATE'] != ''){
-              html += '<td nowrap="nowrap" valign="top"><img src="include/images/blank.gif" width="3" height="1" alt="">' + row_data['DATE'] +'</td>';
-          }
-
-          html += '</tr>';
+    append_data : function(row_data){
 
 
-          if(row_data['DESCRIPTION'] != ''){
+        var html =  '<tr height="20" class="oddListRowS1">';
 
-              html += '<tr class="oddListRowS1">' +
-                  '<td colspan="1" valign="top"></td>' +
-                  '<td colspan="4" valign="top">' +
-                  '<table><tr class="{ROW_COLOR}S1"><td valign="top"><img src="include/images/blank.gif" width="3" height="1" alt=""></td><td valign="top">' + row_data['DESCRIPTION'] + '</td></tr></table>' +
-                  '</td>' +
-                  '</tr>';
-          }
+        if(row_data['MODULE'] != '') {
+            html += '<td nowrap="nowrap" valign="top">'+ row_data['IMAGE'] +'</td>';
+        }
 
-      $('.list.view').append(html);
+        if(row_data['NAME'] != '') {
+            html += '<td nowrap="nowrap" valign="top">' + row_data['NAME'] + '</td>';
+        }
 
-      currently_processing = false;
+        if(row_data['STATUS'] != '' && typeof row_data['STATUS'] !== 'undefined'){
+            html += '<td nowrap="nowrap" valign="top">' + row_data['STATUS'] + '</td>';
+        }else{
+            html += '<td nowrap="nowrap" valign="top"></td>';
+        }
 
-  }
+        if(row_data['CONTACT_NAME'] != ''){
+            html += '<td valign="top">'+ row_data['CONTACT_NAME'] + '</td>';
+        }
+
+        if(row_data['DATE'] != ''){
+            html += '<td nowrap="nowrap" valign="top"><img src="include/images/blank.gif" width="3" height="1" alt="">' + row_data['DATE'] +'</td>';
+        }
+
+        html += '</tr>';
+
+
+        if(row_data['DESCRIPTION'] != ''){
+
+            html += '<tr class="oddListRowS1">' +
+                '<td colspan="1" valign="top"></td>' +
+                '<td colspan="4" valign="top">' +
+                '<table><tr class="{ROW_COLOR}S1"><td valign="top"><img src="include/images/blank.gif" width="3" height="1" alt=""></td><td valign="top">' + row_data['DESCRIPTION'] + '</td></tr></table>' +
+                '</td>' +
+                '</tr>';
+        }
+
+        $('.list.view').append(html);
+
+        currently_processing = false;
+
+    }
 
 };
 

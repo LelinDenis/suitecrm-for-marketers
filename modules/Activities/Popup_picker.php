@@ -79,6 +79,7 @@ class Popup_Picker
         echo "</td><td align='right' class='moduleTitle'>";
         echo "<A href='javascript:print();' class='utilsLink'>" . SugarThemeRegistry::current()->getImage('print', "border='0' align='absmiddle'", 13, 13, ".gif", $app_strings['LNK_PRINT']) . "</a>&nbsp;<A href='javascript:print();' class='utilsLink'>" . $app_strings['LNK_PRINT'] . "</A>\n";
         echo "</td></tr></table>";
+        echo "<script>var theme_name= '" . SugarThemeRegistry::current()->dirName ."'</script>";
         echo "<script src='modules/Activities/scroll_data_loader.js'></script>";
 
         $this->getSummaryView($xtpl);
@@ -138,7 +139,8 @@ class Popup_Picker
                 'CONTACT_ID' => $activity['contact_id'],
                 'DATE' => $bean->date_modified,
                 'DESCRIPTION' => $bean->description,
-                'DATE_TYPE' => $activity['date_type']
+                'DATE_TYPE' => $activity['date_type'],
+                'IMAGE' => SugarThemeRegistry::current()->getImage($activity['module'] . '', 'border="0"', null, null, '.gif', $activity[$bean->name])
             );
 
             switch ($activity['module']) {
