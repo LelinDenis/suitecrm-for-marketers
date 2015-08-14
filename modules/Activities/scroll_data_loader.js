@@ -1,9 +1,19 @@
 var container = $('body');
+var currently_processing = false;
+
 $(container).data("offset",0);
 
 $(window).scroll(function() {
     if($(window).scrollTop() + window.innerHeight == $(document).height()) {
+
+        if(currently_processing == true){
+            return;
+        }
+
+        currently_processing = true;
+
         var offset = $(container).data("offset");
+
         $(container).data("offset",scroll_data_loader.load_summary_data(offset));
     }
 });
@@ -77,6 +87,8 @@ scroll_data_loader = {
           }
 
       $('.list.view').append(html);
+
+      currently_processing = false;
 
   }
 
