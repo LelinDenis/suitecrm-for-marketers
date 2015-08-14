@@ -4,22 +4,16 @@ $(document).ready(function(){
 
     $('#loading').append('<img src="themes/' + theme_name + '/images/img_loading.gif"/>');
 
-    var currently_processing = false;
-
     $(container).data("offset",0);
 
     $(window).scroll(function() {
         if($(window).scrollTop() + window.innerHeight == $(document).height()) {
 
-            if(currently_processing == true){
-                return;
-            }
-
-            currently_processing = true;
-
             var offset = $(container).data("offset");
 
             $(container).data("offset",scroll_data_loader.load_summary_data(offset));
+
+
         }
     });
 
@@ -41,14 +35,13 @@ scroll_data_loader = {
         $.ajax({
             method: "POST",
             url: "index.php?module=Activities&action=loadSummaryData",
-            data: {'offset': offset, to_pdf: true},
+            data: {'offset': offset, to_pdf: true,'module' : 'Activities', 'action' : 'loadSummaryData'},
             dataType:'json'
         }) .always(function( result ) {
-            jQuery.each($.parseJSON(result), function(key, value) {
 
-                console.log(result);
-
+            jQuery.each(result, function(key, value) {
                 scroll_data_loader.append_data(value);
+
             });
         });
 
@@ -96,8 +89,6 @@ scroll_data_loader = {
         }
 
         $('.list.view').append(html);
-
-        currently_processing = false;
 
     }
 
