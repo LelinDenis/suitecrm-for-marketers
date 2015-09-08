@@ -255,6 +255,20 @@ $dictionary['AOS_PDF_Templates'] = array(
     'enable_range_search' => false,
     'disable_num_format' => '',
   ),
+        'default_language' => array (
+            'name' => 'default_language',
+            'vname' => 'LBL_DEFAULT_LANGUAGE',
+            'type' => 'enum',
+            'options' => 'default_language',
+            'default' => '',
+            'mass_update' => false,
+            'required' => false,
+            'reportable' => true,
+            'audited' => false,
+            'importable' => 'true',
+            'duplicate_merge' => false,
+        ),
+
 ),
 	'relationships'=>array (
 ),

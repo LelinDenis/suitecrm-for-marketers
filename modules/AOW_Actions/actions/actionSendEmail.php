@@ -322,14 +322,30 @@ class actionSendEmail extends actionBase {
 
         $url =  $cleanUrl."/index.php?module={$bean->module_dir}&action=DetailView&record={$bean->id}";
 
+        if (strpos($template->subject, '{var}') !== false || strpos($template->body, '{var}') !== false) {
+
+            $multiLevelTemplateParser = new multiLevelTemplateParser();
+
         $template->subject = str_replace("\$contact_user","\$user",$template->subject);
         $template->body_html = str_replace("\$contact_user","\$user",$template->body_html);
         $template->body = str_replace("\$contact_user","\$user",$template->body);
+            $template->subject = $multiLevelTemplateParser->parse_template($template->subject, $bean->module_dir, $bean->id);
+            $template->body_html = $multiLevelTemplateParser->parse_template($template->body_html, $bean->module_dir, $bean->id);
+            $template->body_html = str_replace("\$url", $url, $template->body_html);
+            $template->body = $multiLevelTemplateParser->parse_template($template->subject, $bean->module_dir, $bean->id);
+            $template->body = str_replace("\$url", $url, $template->body);
+
+        } else {
+
+            $template->subject = str_replace("\$contact_user", "\$user", $template->subject);
+            $template->body_html = str_replace("\$contact_user", "\$user", $template->body_html);
+            $template->body = str_replace("\$contact_user", "\$user", $template->body);
         $template->subject = aowTemplateParser::parse_template($template->subject, $object_arr);
         $template->body_html = aowTemplateParser::parse_template($template->body_html, $object_arr);
         $template->body_html = str_replace("\$url",$url,$template->body_html);
         $template->body = aowTemplateParser::parse_template($template->body, $object_arr);
         $template->body = str_replace("\$url",$url,$template->body);
+    }
     }
 
     function getAttachments(EmailTemplate $template){

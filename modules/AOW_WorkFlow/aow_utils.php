@@ -97,53 +97,6 @@ function getRelatedModule($module, $rel_field){
 
 }
 
-function getModuleTreeData($module){
-    global $beanList, $app_list_strings;
-
-    $sort_fields = array();
-    $fields = array(
-        $module =>  array('label' => $app_list_strings['moduleList'][$module],
-                        'type' => 'module',
-                        'module' => $module,
-                        'module_label'=> $app_list_strings['moduleList'][$module])
-    );
-
-    if ($module != '') {
-        if(isset($beanList[$module]) && $beanList[$module]){
-            $mod = new $beanList[$module]();
-
-            foreach($mod->get_linked_fields() as $name => $arr){
-                if(isset($arr['module']) && $arr['module'] != '') {
-                    $rel_module = $arr['module'];
-                } else if($mod->load_relationship($name)){
-                    $rel_module = $mod->$name->getRelatedModuleName();
-                }
-
-                if(isset($arr['vname']) && $arr['vname'] != '') {
-                    $label = $app_list_strings['moduleList'][$rel_module].' : '.translate($arr['vname'],$mod->module_dir);
-                    $module_label = trim(translate($arr['vname'],$mod->module_dir),':');
-                }else {
-                    $label = $app_list_strings['moduleList'][$rel_module].' : '. $name;
-                    $module_label = $name;
-                }
-                $sort_fields[$name] = array('label'=>$label,'type'=>'relationship','module' => $rel_module,'module_label'=>$module_label);
-                if($arr['type'] == 'relate' && isset($arr['id_name']) && $arr['id_name'] != ''){
-                    if(isset($fields[$arr['id_name']])){
-                        unset( $fields[$arr['id_name']]);
-                    }
-                }
-            } //End loop.
-            uasort($sort_fields,function($a,$b){
-                return strcmp($a['label'],$b['label']);
-            });
-
-            $fields = array_merge((array)$fields, (array)$sort_fields);
-        }
-    }
-
-    return json_encode($fields);
-}
-
 function getModuleRelationships($module, $view='EditView',$value = '')
 {
     global $beanList, $app_list_strings;
@@ -529,6 +482,57 @@ function getDateField($module, $aow_field, $view='EditView', $value, $field_opti
     return $field;
 
 }
+
+function getModuleTreeData($module)
+{
+    global $beanList, $app_list_strings;
+
+    $sort_fields = array();
+    $fields = array(
+        $module => array('label' => $app_list_strings['moduleList'][$module],
+            'type' => 'module',
+            'module' => $module,
+            'module_label' => $app_list_strings['moduleList'][$module])
+    );
+
+    if ($module != '') {
+        if (isset($beanList[$module]) && $beanList[$module]) {
+            $mod = new $beanList[$module]();
+
+            foreach ($mod->get_linked_fields() as $name => $arr) {
+                if (isset($arr['module']) && $arr['module'] != '') {
+                    $rel_module = $arr['module'];
+                } else if ($mod->load_relationship($name)) {
+                    $rel_module = $mod->$name->getRelatedModuleName();
+                }
+
+                if (isset($arr['vname']) && $arr['vname'] != '') {
+                    $label = $app_list_strings['moduleList'][$rel_module] . ' : ' . translate($arr['vname'], $mod->module_dir);
+                    $module_label = trim(translate($arr['vname'], $mod->module_dir), ':');
+                } else {
+                    $label = $app_list_strings['moduleList'][$rel_module] . ' : ' . $name;
+                    $module_label = $name;
+                }
+                $sort_fields[$name] = array('label' => $label, 'type' => 'relationship', 'module' => $rel_module, 'module_label' => $module_label, 'rel_name' => $arr['name']);
+                if ($arr['type'] == 'relate' && isset($arr['id_name']) && $arr['id_name'] != '') {
+                    if (isset($fields[$arr['id_name']])) {
+                        unset($fields[$arr['id_name']]);
+                    }
+                }
+            } //End loop.
+            uasort($sort_fields, function ($a, $b) {
+                return strcmp($a['label'], $b['label']);
+            });
+
+            $fields = array_merge((array)$fields, (array)$sort_fields);
+        }
+    }
+
+    $fields = array_values($fields);
+
+    return json_encode($fields);
+}
+
 
 function getDateFields($module, $view='EditView',$value = '', $field_option = true)
 {
