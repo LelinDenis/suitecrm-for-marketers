@@ -191,6 +191,20 @@ $dictionary['EmailTemplate'] = array(
             'options' => 'emailTemplates_type_list',
             'comment' => 'Type of the email template'
        ),
+		'template_module' => array (
+			'name' => 'template_module',
+			'vname' => 'LBL_MODULE',
+			'type' => 'enum',
+			'module' => 'EmailTemplate',
+			'options' => 'pdf_template_type_dom',
+			'default' => '',
+			'mass_update' => false,
+			'required' => false,
+			'reportable' => true,
+			'audited' => false,
+			'importable' => 'true',
+			'duplicate_merge' => false,
+		),
 	),
 	'indices' => array(
 		array(

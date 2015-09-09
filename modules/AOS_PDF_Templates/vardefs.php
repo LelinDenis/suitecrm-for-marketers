@@ -44,11 +44,11 @@ $dictionary['AOS_PDF_Templates'] = array(
     'reportable' => 0,
     'studio' => 'visible',
   ),
-  'type' =>
+  'template_module' =>
   array (
     'required' => '1',
-    'name' => 'type',
-    'vname' => 'LBL_TYPE',
+    'name' => 'template_module',
+    'vname' => 'LBL_TEMPLATE_MODULE',
     'type' => 'enum',
     'massupdate' => 0,
     'default' => '',
@@ -255,19 +255,6 @@ $dictionary['AOS_PDF_Templates'] = array(
     'enable_range_search' => false,
     'disable_num_format' => '',
   ),
-        'default_language' => array (
-            'name' => 'default_language',
-            'vname' => 'LBL_DEFAULT_LANGUAGE',
-            'type' => 'enum',
-            'options' => 'default_language',
-            'default' => '',
-            'mass_update' => false,
-            'required' => false,
-            'reportable' => true,
-            'audited' => false,
-            'importable' => 'true',
-            'duplicate_merge' => false,
-        ),
 
 ),
 	'relationships'=>array (

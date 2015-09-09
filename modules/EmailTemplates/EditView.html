@@ -46,6 +46,8 @@
 	#subjectfield { height: 1.6em; }
 </style>
 {JAVASCRIPT}
+<script type="text/javascript" src="include/Multiple_Level_Templating/insert_variables/insert_variable.js"></script>
+<script type="text/javascript" src="include/Multiple_Level_Templating/insert_variables/jquery.columnview.js"></script>
 <script type="text/javascript" src="cache/include/javascript/sugar_grp1.js?v={VERSION_MARK}"></script>
 {JSLANG}
 <script type="text/javascript" language="Javascript" src="modules/Emails/javascript/Email.js?v={VERSION_MARK}"></script>
@@ -61,6 +63,8 @@
 	<input type="hidden" name="form">
 	<input type="hidden" name="return_module" value="{RETURN_MODULE}">
 	<input type="hidden" name="return_id" value="{RETURN_ID}">
+    <input type="hidden" name="relate_to" value="{RETURN_RELATIONSHIP}">
+    <input type="hidden" name="relate_id" value="{RETURN_ID}">
 	<input type="hidden" name="return_action" value="{RETURN_ACTION}">
 	<input type="hidden" name="inpopupwindow" value="{INPOPUPWINDOW}">
 	<input type="hidden" name="old_id" value="{OLD_ID}">
@@ -106,8 +110,10 @@
 							<input id='name' name='name' tabindex="0" type="text" size='30' maxlength="255" value="{NAME}">
 						</td>
 						<td width="15%" scope="row">
+                            {MOD.LBL_TYPE}
 						</td>
 						<td width="30%" >
+                            <select id="type" name='type' tabindex="11">{TYPEDROPDOWN}</select>
 						</td>
 					</tr>
                     <tr>
@@ -127,9 +133,13 @@
 						</td>
 					</tr>
 					<tr>
-						<td colspan="4">
-							&nbsp;
+                        <td width="15%" scope="row">
+                            {MOD.LBL_MODULE}
 						</td>
+                        <td width="30%">
+                            <select id="template_module" name='template_module' tabindex="11">{INSERT_VARIABLE_MODULE_OPTIONS}</select>
+                        </td>
+
 					</tr>
 <!-- BEGIN: NoInbound -->
 					<tr>

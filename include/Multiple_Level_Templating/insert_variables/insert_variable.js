@@ -74,7 +74,8 @@ function processTreeData() {
     $("ul#insert_fields_list").columnview(
         {
             getSubtree: function (elt, isRoot) {
-                var module = $("#type").val();
+
+                var module = $("#template_module").val();
 
                 if (elt && isRoot == false) {
 
@@ -176,7 +177,7 @@ $(document).ready(function () {
     },1);
 
 
-    $('#type').change(function () {
+    $('#template_module').change(function () {
         $("#insert_fields_container").html("<ul id='insert_fields_list'></ul>");
         processTreeData();
     });

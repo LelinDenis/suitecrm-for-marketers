@@ -47,34 +47,5 @@ class AOS_PDF_TemplatesController extends SugarController
         die;
     }
 
-    public function action_editview(){
-
-        global $sugar_config;
-
-        $this->view = 'edit';
-        $GLOBALS['view'] = $this->view;
-
-        if($_REQUEST['return_id'] && $this->bean->id == "") {
-
-            $parent_template = new AOS_PDF_Templates();
-            $parent_template->retrieve($_REQUEST['return_id']);
-
-            $this->bean->type = $parent_template->type;
-            $this->bean->description = $parent_template->description;
-            $this->bean->pdfheader = $parent_template->pdfheader;
-            $this->bean->pdffooter = $parent_template->pdffooter;
-            $this->bean->name = $parent_template->name;
-            $this->bean->field_defs['default_language']['options'] = "default_language_child";
-
-        }else{
-            $this->bean->field_defs['default_language']['options'] = "default_language_parent";
-        }
-
-        if($this->bean->parent_template == 1 && $this->bean->id){
-            $this->bean->field_defs['default_language']['options'] = "default_language_parent";
-        }elseif($this->bean->parent_template == 0 && $this->bean->id){
-            $this->bean->field_defs['default_language']['options'] = "default_language_child";
-        }
-    }
 
 }

@@ -217,9 +217,9 @@ if(isset($focus->text_only) && $focus->text_only){
     $xtpl->assign("TEXTONLY_VALUE","0");
 }
 
+require_once("custom/modules/EmailTemplates/templateFields.php");
 
-
-$xtpl->assign("FIELD_DEFS_JS", $focus->generateFieldDefsJS());
+$xtpl->assign("FIELD_DEFS_JS", generateFieldDefsJS2());
 $xtpl->assign("LBL_CONTACT",$app_list_strings['moduleList']['Contacts']);
 
 global $current_user;
@@ -245,6 +245,10 @@ if($focus->parent_type == "Account") {
 
 $xtpl->assign("DESCRIPTION", $focus->description);
 $xtpl->assign("TYPE_OPTIONS", get_select_options_with_id($app_list_strings['record_type_display'], $focus->parent_type));
+
+$xtpl->assign("INSERT_VARIABLE_MODULE_OPTIONS", get_select_options_with_id($app_list_strings['pdf_template_type_dom'], $focus->parent_type));
+
+
 //$xtpl->assign("DEFAULT_MODULE","Accounts");
 
 if(isset($focus->body)) $xtpl->assign("BODY", $focus->body); else $xtpl->assign("BODY", "");
@@ -303,16 +307,7 @@ if(true) {
 	     $xtpl->assign("DEFAULT_MODULE",'Contacts');
          //$xtpl->assign("CAMPAIGN_POPUP_JS", '<script type="text/javascript" src="include/javascript/sugar_3.js"></script>');
 	} else {
-	     $dropdown="<option value='Accounts'>
-						".$app_list_strings['moduleListSingular']['Accounts']."
-		  	       </option>
-			       <option value='Contacts'>
-						".$lblContactAndOthers."
-			       </option>
-			       <option value='Users'>
-						".$app_list_strings['moduleListSingular']['Users']."
-			       </option>";
-		$xtpl->assign("DROPDOWN",$dropdown);
+		$xtpl->assign("DROPDOWN",genDropDownJS2());
 		$xtpl->assign("DEFAULT_MODULE",'Accounts');
 	}
 	////	END CAMPAIGNS

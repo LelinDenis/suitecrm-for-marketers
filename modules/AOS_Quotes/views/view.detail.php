@@ -40,7 +40,7 @@ class AOS_QuotesViewDetail extends ViewDetail {
 	function populateQuoteTemplates(){
 		global $app_list_strings, $current_user;
 		
-		$sql = "SELECT id, name FROM aos_pdf_templates WHERE deleted=0 AND type='AOS_Quotes' AND active = 1";
+		$sql = "SELECT id, name FROM aos_pdf_templates WHERE deleted=0 AND template_module='AOS_Quotes' AND active = 1";
 		
 		$res = $this->bean->db->query($sql);
 

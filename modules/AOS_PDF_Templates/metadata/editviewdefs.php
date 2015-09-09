@@ -30,41 +30,49 @@ $viewdefs [$module_name] =
                     array (
                         'file' => 'modules/AOS_PDF_Templates/AOS_PDF_Templates.js',
                     ),
-                ),
-                'useTabs' => false,
-                'tabDefs' =>
-                array (
-                    'DEFAULT' =>
-                    array (
-                        'newTab' => false,
-                        'panelDefault' => 'expanded',
+                                2 =>
+                                    array (
+                                        'file' => 'include/Multiple_Level_Templating/insert_variables/insert_variable.js',
+                                    ),
+                                3 =>
+                                    array (
+                                        'file' => 'include/Multiple_Level_Templating/insert_variables/jquery.columnview.js',
+                                    ),
+                            ),
+                        'useTabs' => false,
+                        'tabDefs' =>
+                            array (
+                                'DEFAULT' =>
+                                    array (
+                                        'newTab' => false,
+                                        'panelDefault' => 'expanded',
+                                    ),
+                                'LBL_EDITVIEW_PANEL1' =>
+                                    array (
+                                        'newTab' => false,
+                                        'panelDefault' => 'expanded',
+                                    ),
+                            ),
                     ),
-                    'LBL_EDITVIEW_PANEL1' =>
+                'panels' =>
                     array (
-                        'newTab' => false,
-                        'panelDefault' => 'expanded',
-                    ),
-                ),
-            ),
-            'panels' =>
-            array (
-                'default' =>
-                array (
-                    0 =>
-                    array (
-                        0 =>
-                        array (
-                            'name' => 'name',
-                            'label' => 'LBL_NAME',
-                        ),
-                        1 => 'assigned_user_name',
-                    ),
-                    1 =>
-                    array (
-                        0 =>
-                        array (
-                            'name' => 'type',
-                            'label' => 'LBL_TYPE',
+                        'default' =>
+                            array (
+                                0 =>
+                                    array (
+                                        0 =>
+                                            array (
+                                                'name' => 'name',
+                                                'label' => 'LBL_NAME',
+                                            ),
+                                        1 => 'assigned_user_name',
+                                    ),
+                                1 =>
+                                    array (
+                                        0 =>
+                                            array (
+                                                'name' => 'template_module',
+                                                'label' => 'LBL_TEMPLATE_MODULE',
                             'displayParams' =>
                             array (
                                 'field' =>
@@ -73,12 +81,12 @@ $viewdefs [$module_name] =
                                 ),
                             ),
                         ),
-                        1 =>
-                        array (
-                            'name' => 'sample',
-                            'label' => 'LBL_SAMPLE',
-                            'customCode' => '{$CUSTOM_SAMPLE}',
-                        ),
+//                        1 =>
+//                        array (
+//                            'name' => 'sample',
+//                            'label' => 'LBL_SAMPLE',
+//                            'customCode' => '{$CUSTOM_SAMPLE}',
+//                        ),
                     ),
                     2 =>
                     array (
