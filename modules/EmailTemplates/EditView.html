@@ -147,18 +147,7 @@
 							{MOD.LBL_INSERT_VARIABLE}&nbsp;
 						</td>
 						<td width="30%"  colspan="3">
-							<select name='variable_module' tabindex="0" onchange="addVariables(document.EditView.variable_name,this.options[this.selectedIndex].value);">
-  							  {DROPDOWN}
- 							</select>
-							<select name='variable_name' tabindex="0" onchange="showVariable();">
-							</select>
-							<span scope="row">
-								{MOD.LBL_USE}:
-							</span>
-							<input type="text" size="30" tabindex="0" name="variable_text" />
-<!-- BEGIN: variable_button -->
-							<input type='button' tabindex="0" onclick='{INSERT_VARIABLE_ONCLICK}' class='button' value='{MOD.LBL_INSERT}'>
-<!-- END: variable_button -->
+                            <div id='insert_fields_container'><ul id='insert_fields_list'></ul></div>
 						</td>
 					</tr>
 <!-- BEGIN: tracker_url -->

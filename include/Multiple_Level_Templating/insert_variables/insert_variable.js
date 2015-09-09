@@ -149,21 +149,49 @@ function setUpUI(){
                 contents = $(this).attr('title');
             }
         });
-        $('#description_ifr').droppable({
-            drop: function (event, ui) {
-                tinymce.get("description").execCommand('mceInsertContent',false,contents);
-            }
-        });
-        $('#pdfheader_parent').droppable({
-            drop: function (event, ui) {
-                tinymce.get("pdfheader").execCommand('mceInsertContent',false,contents);
-            }
-        });
-        $('#pdffooter_parent').droppable({
-            drop: function (event, ui) {
-                tinymce.get("pdffooter").execCommand('mceInsertContent',false,contents);
-            }
-        });
+
+        var subjectfield = $('#subjectfield');
+        var body_text_ifr = $('#body_text_ifr');
+
+        if(subjectfield && body_text_ifr){
+
+            $(subjectfield).droppable({
+                drop: function (event, ui) {
+                    $(subjectfield).append(contents);
+                }
+            });
+            $(body_text_ifr).droppable({
+                drop: function (event, ui) {
+                    tinymce.get("body_text").execCommand('mceInsertContent',false,contents);
+                }
+            });
+
+        }
+
+        var description_ifr = $('#description_ifr');
+        var pdfheader_parent = $('#pdfheader_parent');
+        var pdffooter_parent = $('#pdffooter_parent');
+
+        if($(description_ifr) && $(pdfheader_parent) &&  $(pdffooter_parent)){
+
+            $(description_ifr).droppable({
+                drop: function (event, ui) {
+                    tinymce.get("description").execCommand('mceInsertContent',false,contents);
+                }
+            });
+            $(pdfheader_parent).droppable({
+                drop: function (event, ui) {
+                    tinymce.get("pdfheader").execCommand('mceInsertContent',false,contents);
+                }
+            });
+            $(pdffooter_parent).droppable({
+                drop: function (event, ui) {
+                    tinymce.get("pdffooter").execCommand('mceInsertContent',false,contents);
+                }
+            });
+
+        }
+
 }
 
 
