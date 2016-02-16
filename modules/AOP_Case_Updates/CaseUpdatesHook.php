@@ -207,7 +207,7 @@ class CaseUpdatesHook {
         $beans = $ea->getBeansByEmailAddress($bean->from_addr);
         $contact_id = null;
         foreach($beans as $emailBean){
-            if($emailBean->module_name == "Contacts"){
+            if($emailBean->module_name == "Contacts" && !empty($emailBean->id)){
                 $contact_id = $emailBean->id;
                 $this->linkAccountAndCase($bean->parent_id,$emailBean->account_id);
             }
@@ -315,7 +315,6 @@ class CaseUpdatesHook {
 
         $email_template = new EmailTemplate();
         $aop_config = $this->getAOPConfig();
-        $GLOBALS['log']->warn("CaseUpdatesHook: sendClosureEmail Config is ".print_r($aop_config,true));
         $email_template = $email_template->retrieve($aop_config['case_closure_email_template_id']);
 
         if(!$email_template){
@@ -369,7 +368,11 @@ class CaseUpdatesHook {
         if(!$bean->fetched_row){
             return;
         }
-        $contact = BeanFactory::getBean("Contacts",$arguments['related_id']);
+        if(!empty($arguments['related_bean'])){
+            $contact = $arguments['related_bean'];
+        }else{
+            $contact = BeanFactory::getBean("Contacts",$arguments['related_id']);
+        }
         $this->sendCreationEmail($bean, $contact);
     }
 
@@ -426,7 +429,9 @@ class CaseUpdatesHook {
         $mailer->From     = $emailSettings['from_address'];
         $mailer->FromName = $emailSettings['from_name'];
         $email = $contact->emailAddress->getPrimaryAddress($contact);
-
+        if(empty($email) && !empty($contact->email1)){
+            $email = $contact->email1;
+        }
         $mailer->AddAddress($email);
         if (!$mailer->Send()){
             $GLOBALS['log']->info("CaseUpdatesHook: Could not send email:  " . $mailer->ErrorInfo);

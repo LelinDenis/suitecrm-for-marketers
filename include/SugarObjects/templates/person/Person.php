@@ -42,7 +42,7 @@ require_once('include/SugarObjects/templates/basic/Basic.php');
 
 class Person extends Basic
 {
-    var $picture;
+    var $photo;
     /**
      * @var bool controls whether or not to invoke the getLocalFormatttedName method with title and salutation
      */
@@ -232,7 +232,7 @@ class Person extends Basic
      *
      * @see SugarBean::create_export_query()
      */
-    function create_export_query(&$order_by, &$where, $relate_link_join = '')
+    function create_export_query($order_by, $where, $relate_link_join = '')
     {
         $custom_join = $this->custom_fields->getJOIN(true, true, $where);
 

@@ -50,9 +50,9 @@ global $path;
 global $sugar_config;
 
 if($unzip_dir == null ) {
-	$unzip_dir = $_SESSION['unzip_dir'];
+	$unzip_dir = isset($_SESSION['unzip_dir']) ? $_SESSION['unzip_dir'] : null;
 }
-
+/*
 // creating full text search logic hooks
 // this will be merged into application/Ext/LogicHooks/logichooks.ext.php
 // when rebuild_extensions is called
@@ -76,7 +76,7 @@ CIA;
 } else {
     createFTSLogicHook('Extension/application/Ext/LogicHooks/SugarFTSHooks.php');
 }
-
+*/
 //First repair the databse to ensure it is up to date with the new vardefs/tabledefs
 logThis('About to repair the database.', $path);
 //Use Repair and rebuild to update the database.
@@ -123,6 +123,12 @@ foreach ($beanFiles as $bean => $file) {
             }
 		}
 	}
+}
+
+// add suite version into upgrade pack!
+if(isset($repairedTables['reminders']) && $repairedTables['reminders'] && isset($_SESSION['suitecrm_version_before_upgrade']) && version_compare($_SESSION['suitecrm_version_before_upgrade'], Reminder::UPGRADE_VERSION, '<')) {
+	Reminder::upgrade();
+	unset($_SESSION['suitecrm_version_before_upgrade']);
 }
 
 $olddictionary = $dictionary;
@@ -258,12 +264,12 @@ upgrade_custom_relationships();
 require_once('modules/UpgradeWizard/uw_utils.php');
 
 //Update the license
-logThis('Start Updating the license ', $path);
+/*logThis('Start Updating the license ', $path);
 ob_start();
 
    check_now(get_sugarbeat());
 ob_end_clean();
-logThis('End Updating the license ', $path);
+logThis('End Updating the license ', $path);*/
 
 set_upgrade_progress('end','done');
 
@@ -324,9 +330,9 @@ else{
 $path			= $parsedSiteUrl['path'];
 $cleanUrl		= "{$parsedSiteUrl['scheme']}://{$host}{$port}{$path}/index.php";
 
-ob_start();
+/*ob_start();
 check_now(get_sugarbeat());
-ob_end_clean();
+ob_end_clean();*/
 
 $uwMain =<<<eoq
 <table cellpadding="3" cellspacing="0" border="0">

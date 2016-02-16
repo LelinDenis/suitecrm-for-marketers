@@ -101,7 +101,8 @@ class SugarAuthenticate{
 		}
 		else
 		{
-			if(!empty($usr_id) && $res['lockoutexpiration'] > 0){
+			//if(!empty($usr_id) && $res['lockoutexpiration'] > 0){
+            if(!empty($usr_id)){
 				if (($logout=$usr->getPreference('loginfailed'))=='')
 	        		$usr->setPreference('loginfailed','1');
 	    		else
@@ -317,6 +318,7 @@ class SugarAuthenticate{
 	 *
 	 */
 	function logout(){
+			session_start();
 			session_destroy();
 			ob_clean();
 			header('Location: index.php?module=Users&action=Login');
@@ -330,7 +332,7 @@ class SugarAuthenticate{
 	 * @param STRING $password
 	 * @return STRING $encoded_password
 	 */
-	function encodePassword($password){
+	static function encodePassword($password){
 		return strtolower(md5($password));
 	}
 
@@ -375,6 +377,6 @@ class SugarAuthenticate{
     public function redirectToLogin(SugarApplication $app)
     {
         $loginVars = $app->createLoginVars();
-        $app->redirect('index.php?action=Login&module=Users' . $loginVars);
+		SugarApplication::redirect('index.php?action=Login&module=Users' . $loginVars);
     }
 }

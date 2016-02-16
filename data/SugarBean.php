@@ -755,7 +755,7 @@ class SugarBean
      *
      * Internal function, do not override.
      */
-    function removeRelationshipMeta($key,$db,$tablename,$dictionary,$module_dir)
+    static function removeRelationshipMeta($key,$db,$tablename,$dictionary,$module_dir)
     {
         //load the module dictionary if not supplied.
         if ((!isset($dictionary) or empty($dictionary)) && !empty($module_dir))
@@ -792,7 +792,7 @@ class SugarBean
      * @deprecated 4.5.1 - Nov 14, 2006
      * @static
     */
-    function remove_relationship_meta($key,$db,$log,$tablename,$dictionary,$module_dir)
+    static function remove_relationship_meta($key,$db,$log,$tablename,$dictionary,$module_dir)
     {
         SugarBean::removeRelationshipMeta($key,$db,$tablename,$dictionary,$module_dir);
     }
@@ -813,7 +813,7 @@ class SugarBean
      *
      *  Internal function, do not override.
      */
-    function createRelationshipMeta($key,$db,$tablename,$dictionary,$module_dir,$iscustom=false)
+    static function createRelationshipMeta($key,$db,$tablename,$dictionary,$module_dir,$iscustom=false)
     {
         //load the module dictionary if not supplied.
         if (empty($dictionary) && !empty($module_dir))
@@ -931,7 +931,7 @@ class SugarBean
      * @deprecated 4.5.1 - Nov 14, 2006
      * @static
     */
-    function create_relationship_meta($key,&$db,&$log,$tablename,$dictionary,$module_dir)
+    static function create_relationship_meta($key,&$db,&$log,$tablename,$dictionary,$module_dir)
     {
         SugarBean::createRelationshipMeta($key,$db,$tablename,$dictionary,$module_dir);
     }
@@ -1036,8 +1036,8 @@ class SugarBean
      * Method will load the relationship if not done so already.
      *
      * @param string $field_name relationship to be loaded.
-     * @param string $bean name  class name of the related bean.
-     * @param array $sort_array optional, unused
+     * @param string $bean name  class name of the related bean.legacy
+     * @param string $order_by, Optional, default empty.
      * @param int $begin_index Optional, default 0, unused.
      * @param int $end_index Optional, default -1
      * @param int $deleted Optional, Default 0, 0  adds deleted=0 filter, 1  adds deleted=1 filter.
@@ -1045,8 +1045,7 @@ class SugarBean
      *
      * Internal function, do not override.
      */
-    function get_linked_beans($field_name,$bean_name, $sort_array = array(), $begin_index = 0, $end_index = -1,
-                              $deleted=0, $optional_where="")
+    function get_linked_beans($field_name,$bean_name = '', $order_by = '', $begin_index = 0, $end_index = -1, $deleted=0, $optional_where="")
     {
         //if bean_name is Case then use aCase
         if($bean_name=="Case")
@@ -1055,14 +1054,15 @@ class SugarBean
         if($this->load_relationship($field_name)) {
             if ($this->$field_name instanceof Link) {
                 // some classes are still based on Link, e.g. TeamSetLink
-                return array_values($this->$field_name->getBeans(new $bean_name(), $sort_array, $begin_index, $end_index, $deleted, $optional_where));
+                return array_values($this->$field_name->getBeans(new $bean_name(), $order_by, $begin_index, $end_index, $deleted, $optional_where));
             } else {
                 // Link2 style
-                if ($end_index != -1 || !empty($deleted) || !empty($optional_where))
+                if ($end_index != -1 || !empty($deleted) || !empty($optional_where) || !empty($order_by))
                     return array_values($this->$field_name->getBeans(array(
                         'where' => $optional_where,
                         'deleted' => $deleted,
-                        'limit' => ($end_index - $begin_index)
+                        'limit' => ($end_index - $begin_index),
+                        'order_by' => $order_by
                     )));
                 else
                     return array_values($this->$field_name->getBeans());
@@ -2398,7 +2398,7 @@ class SugarBean
         $nullvalue='';
         foreach($this->field_defs as $field=>$field_value)
         {
-            if($field == 'user_preferences' && $this->module_dir == 'Users')
+            if(($field == 'user_preferences' && $this->module_dir == 'Users') || ($field == 'internal' && $this->module_dir == 'Cases') )
                 continue;
             if(isset($row[$field]))
             {
@@ -2880,7 +2880,7 @@ class SugarBean
      *
      * Internal Function, do not overide.
      */
-    function get_union_related_list($parentbean, $order_by = "", $sort_order='', $where = "",
+    static function get_union_related_list($parentbean, $order_by = "", $sort_order='', $where = "",
     $row_offset = 0, $limit=-1, $max=-1, $show_deleted = 0, $subpanel_def)
     {
         $secondary_queries = array();
@@ -3257,6 +3257,9 @@ class SugarBean
 			$addrelatefield = $this->get_relationship_field($field);
 			if ($addrelatefield)
 				$addrelate[$addrelatefield] = true;
+		}
+		if(!empty($this->field_defs[$field]['id_name'])){
+			$addrelate[$this->field_defs[$field]['id_name']] = true;
 		}
 	}
 
@@ -3653,7 +3656,9 @@ class SugarBean
 		foreach ($this->field_defs as $field_def => $value)
 		{
 			if (isset($value['relationship_fields']) && 
-				in_array($field, $value['relationship_fields']) )
+				in_array($field, $value['relationship_fields']) &&
+                (!isset($value['link_type']) || $value['link_type'] != 'relationship_info')
+            )
 				return $field_def;
 		}
 
@@ -3974,7 +3979,7 @@ class SugarBean
             }
             if(!empty($rows_found) && (empty($limit) || $limit == -1))
             {
-                $limit = $sugar_config['list_max_entries_per_subpanel'];
+                $limit = $max_per_page;
             }
             if( $toEnd)
             {
@@ -4532,6 +4537,7 @@ class SugarBean
 	{
 		global $current_user;
 		$date_modified = $GLOBALS['timedate']->nowDb();
+        $id = $this->db->quote($id);
 		if(isset($_SESSION['show_deleted']))
 		{
 			$this->mark_undeleted($id);
@@ -4581,7 +4587,7 @@ class SugarBean
         $this->call_custom_logic("before_restore", $custom_logic_arguments);
 
 		$date_modified = $GLOBALS['timedate']->nowDb();
-		$query = "UPDATE $this->table_name set deleted=0 , date_modified = '$date_modified' where id='$id'";
+		$query = "UPDATE $this->table_name set deleted=0 , date_modified = '$date_modified' where id='" . $this->db->quote($id) ."'";
 		$this->db->query($query, true,"Error marking record undeleted: ");
 
         $this->restoreFiles();

@@ -65,7 +65,7 @@ class TemplateHandler {
      * Helper function to remove all .tpl files in the cache directory
      *
      */
-    function clearAll() {
+    static function clearAll() {
     	global $beanList;
 		foreach($beanList as $module_dir =>$object_name){
                 TemplateHandler::clearCache($module_dir);
@@ -80,7 +80,7 @@ class TemplateHandler {
      * @param String $module The module directory to clear
      * @param String $view Optional view value (DetailView, EditView, etc.)
      */
-    function clearCache($module, $view=''){
+    static function clearCache($module, $view=''){
         $cacheDir = create_cache_directory('modules/'. $module . '/');
         $d = dir($cacheDir);
         while($e = $d->read()){
@@ -341,7 +341,7 @@ class TemplateHandler {
                 $field = $f;
                 $name = $qsd->form_name . '_' . $field['name'];
 
-                if($field['type'] == 'relate' && isset($field['module']) && preg_match('/_name$|_c$/si',$name)) {
+                if($field['type'] == 'relate' && isset($field['module']) && preg_match('/_name$|_c$/si',$name)  || !empty($field['quicksearch']) ) {
                     if(preg_match('/^(Campaigns|Teams|Users|Contacts|Accounts)$/si', $field['module'], $matches)) {
 
                         if($matches[0] == 'Campaigns') {

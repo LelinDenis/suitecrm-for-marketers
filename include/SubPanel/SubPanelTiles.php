@@ -151,7 +151,8 @@ class SubPanelTiles
         else
         {
             // see if user current user has custom subpanel layout
-            $tabs = SubPanelTilesTabs::applyUserCustomLayoutToTabs($tabs);
+			$objSubPanelTilesTabs = new SubPanelTilesTabs($this->focus);
+            $tabs = $objSubPanelTilesTabs->applyUserCustomLayoutToTabs($tabs);
 
             /* Check if the preference is set now,
              * because there's no point in executing this code if
@@ -204,7 +205,7 @@ if(document.DetailView != null &&
 		$default_div_display = 'inline';
 		if(!empty($sugar_config['hide_subpanels_on_login'])){
 			if(!isset($_SESSION['visited_details'][$this->focus->module_dir])){
-				setcookie($this->focus->module_dir . '_divs', '');
+				setcookie($this->focus->module_dir . '_divs', '',0,null,null,false,true);
 				unset($_COOKIE[$this->focus->module_dir . '_divs']);
 				$_SESSION['visited_details'][$this->focus->module_dir] = true;
 

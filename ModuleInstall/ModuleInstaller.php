@@ -68,7 +68,7 @@ class ModuleInstaller{
 	function ModuleInstaller(){
 		$this->ms = new ModuleScanner();
 		$this->modules = get_module_dir_list();
-		$this->db = & DBManagerFactory::getInstance();
+		$this->db = DBManagerFactory::getInstance();
         include("ModuleInstall/extensions.php");
         $this->extensions = $extensions;
 	}
@@ -2105,7 +2105,7 @@ private function dir_file_count($path){
 	 *
 	 * @return an array of errors
 	 */
-	function getErrors(){
+	static function getErrors(){
 		if(!empty($_SESSION['MODULEINSTALLER_ERRORS'])){
 			$errors = $_SESSION['MODULEINSTALLER_ERRORS'];
 			unset($_SESSION['MODULEINSTALLER_ERRORS']);
