@@ -196,7 +196,13 @@ class ParserLabel //extends ModuleBuilderParser
         if ($changed) {
             $GLOBALS ['log']->debug("ParserLabel->addLabels: writing new mod_strings to $filename");
             $GLOBALS ['log']->debug("ParserLabel->addLabels: mod_strings=" . print_r($mod_strings, true));
-            if (!write_array_to_file("mod_strings", $mod_strings, $filename)) {
+            $out = "<?php \n";
+            foreach($mod_strings as $lbl_key => $lbl_val )
+            {
+                $out .= override_value_to_string("mod_strings", $lbl_key, $lbl_val) . "\n";
+            }
+            $out .= "\n?>\n";
+            if (!sugar_file_put_contents($filename, $out)) {
                 $GLOBALS ['log']->fatal("Could not write $filename");
             } else {
                 // if we have a cache to worry about, then clear it now
@@ -247,7 +253,13 @@ class ParserLabel //extends ModuleBuilderParser
             if ($changed) {
                 $GLOBALS ['log']->debug("ParserLabel->addLabels: writing new mod_strings to $filename");
                 $GLOBALS ['log']->debug("ParserLabel->addLabels: mod_strings=" . print_r($mod_strings, true));
-                if (!write_array_to_file("mod_strings", $mod_strings, $filename)) {
+                $out = "<?php \n // created: " . date('Y-m-d H:i:s') . "\n";
+                foreach($mod_strings as $lbl_key => $lbl_val )
+                {
+                    $out .= override_value_to_string("mod_strings", $lbl_key, $lbl_val) . "\n";
+                }
+                $out .= "\n?>\n";
+                if (!sugar_file_put_contents($filename, $out)) {
                     $GLOBALS ['log']->fatal("Could not write $filename");
                 } else {
                     // if we have a cache to worry about, then clear it now
