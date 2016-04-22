@@ -1809,7 +1809,7 @@ class ModuleInstaller{
 						if((empty($filter) || substr_count($entry, $filter) > 0) && is_file($module_install.'/'.$entry)
 						  && $entry != '.' && $entry != '..' && strtolower(substr($entry, -4)) == ".php")
 						{
-						     if (substr($entry, 0, 9) == '_override') {
+						     if (substr($entry, 0, 9) == '_override' || substr($entry, -13,-4) == '_override') {
 						    	$override[] = $entry;
 						    } else {
 							    $file = file_get_contents($module_install . '/' . $entry);

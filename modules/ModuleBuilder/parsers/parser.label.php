@@ -84,6 +84,7 @@ class ParserLabel //extends ModuleBuilderParser
      */
     static function removeLabel($language, $label, $labelvalue, $moduleName, $basepath = null, $forRelationshipLabel = false)
     {
+        $deployedModule = false;
         $GLOBALS ['log']->debug("ParserLabel->removeLabels($language, \$label, \$labelvalue, $moduleName, $basepath );");
         if (is_null($basepath)) {
             $deployedModule = true;
@@ -133,7 +134,7 @@ class ParserLabel //extends ModuleBuilderParser
                 // if we have a cache to worry about, then clear it now
                 if ($deployedModule) {
                     $GLOBALS ['log']->debug("PaserLabel->addLabels: clearing language cache");
-                    $cache_key = "module_language." . $language . $moduleName;
+                    $cache_key = LanguageManager::getLanguageCacheKey($moduleName,$language);
                     sugar_cache_clear($cache_key);
                     LanguageManager::clearLanguageCache($moduleName, $language);
                 }
@@ -143,12 +144,14 @@ class ParserLabel //extends ModuleBuilderParser
         return true;
     }
 
-    /*
+    /**
      * Add a set of labels to the language pack for a module, deployed or undeployed
-     * @param string $language      Language key, for example 'en_us'
-     * @param array $labels         The labels to add in the form of an array of System label => Display label pairs
-     * @param string $moduleName    Name of the module to which to add these labels
-     * @param string $packageName   If module is undeployed, name of the package to which it belongs
+     * @param string $language
+     * @param array $labels
+     * @param string $moduleName
+     * @param string $basepath
+     * @param bool $forRelationshipLabel
+     * @return bool
      */
     static function addLabels($language, $labels, $moduleName, $basepath = null, $forRelationshipLabel = false)
     {
@@ -196,20 +199,14 @@ class ParserLabel //extends ModuleBuilderParser
         if ($changed) {
             $GLOBALS ['log']->debug("ParserLabel->addLabels: writing new mod_strings to $filename");
             $GLOBALS ['log']->debug("ParserLabel->addLabels: mod_strings=" . print_r($mod_strings, true));
-            $out = "<?php \n";
-            foreach($mod_strings as $lbl_key => $lbl_val )
-            {
-                $out .= override_value_to_string("mod_strings", $lbl_key, $lbl_val) . "\n";
-            }
-            $out .= "\n?>\n";
-            if (!sugar_file_put_contents($filename, $out)) {
+            if (!write_array_to_file("mod_strings", $mod_strings, $filename)) {
                 $GLOBALS ['log']->fatal("Could not write $filename");
             } else {
                 // if we have a cache to worry about, then clear it now
                 if ($deployedModule) {
                     SugarCache::cleanOpcodes();
                     $GLOBALS ['log']->debug("PaserLabel->addLabels: clearing language cache");
-                    $cache_key = "module_language." . $language . $moduleName;
+                    $cache_key = LanguageManager::getLanguageCacheKey($moduleName,$language);
                     sugar_cache_clear($cache_key);
                     LanguageManager::clearLanguageCache($moduleName, $language);
                 }
@@ -266,7 +263,7 @@ class ParserLabel //extends ModuleBuilderParser
                     if ($deployedModule) {
                         SugarCache::cleanOpcodes();
                         $GLOBALS ['log']->debug("PaserLabel->addLabels: clearing language cache");
-                        $cache_key = "module_language." . $language . $moduleName;
+                        $cache_key = LanguageManager::getLanguageCacheKey($moduleName,$language);
                         sugar_cache_clear($cache_key);
                         LanguageManager::clearLanguageCache($moduleName, $language);
                     }
@@ -374,7 +371,7 @@ class ParserLabel //extends ModuleBuilderParser
                         if ($deployedModule) {
                             SugarCache::cleanOpcodes();
                             $GLOBALS ['log']->debug("PaserLabel->addLabels: clearing language cache");
-                            $cache_key = "module_language." . $language . $moduleName;
+                            $cache_key = LanguageManager::getLanguageCacheKey($moduleName,$language);
                             sugar_cache_clear($cache_key);
                             LanguageManager::clearLanguageCache($moduleName, $language);
                         }
