@@ -38,7 +38,9 @@ class AM_ProjectTemplatesController extends SugarController {
         $project_start = $_POST['start_date'];
         $copy_all = isset($_POST['copy_all_tasks']) ? 1 : 0;
 		$copy_tasks = isset($_POST['tasks']) ? $_POST['tasks'] : array() ;
+
 			
+		
 		//Get project start date
         if($project_start!='')
 		{
@@ -49,9 +51,61 @@ class AM_ProjectTemplatesController extends SugarController {
 
         $duration_unit = 'Days';
 
+
         //Get the project template
         $template = new AM_ProjectTemplates();
         $template->retrieve($template_id);
+
+		$override_business_hours = intval($template->override_business_hours);
+
+
+		//------ build business hours array
+
+		$dateformat = $current_user->getPreference('datef');
+
+		$days = array("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday");
+		$businessHours = BeanFactory::getBean("AOBH_BusinessHours");
+		$bhours = array();
+		foreach($days as $day){
+			$bh = $businessHours->getBusinessHoursForDay($day);
+			
+			if($bh){
+				$bh = $bh[0];
+				if($bh->open){
+					$open_h = $bh ? $bh->opening_hours : 9;
+					$close_h = $bh ? $bh->closing_hours : 17;							
+					
+					$start_time = DateTime::createFromFormat('Y-m-d', $start);
+
+					$start_time = $start_time->modify('+'.$open_h.' Hours');
+
+					$end_time = DateTime::createFromFormat('Y-m-d', $start);
+					$end_time = $end_time->modify('+'.$close_h.' Hours');
+
+					$hours = ($end_time->getTimestamp() - $start_time->getTimestamp())/(60*60);
+					if($hours < 0)
+						$hours = 0 - $hours ;
+
+					$bhours[$day] = $hours; 	
+
+
+				}
+				else{
+					$bhours[$day] = 0;
+				}
+			}
+		}
+		//-----------------------------------
+		
+
+		//default business hours array
+		if( $override_business_hours != 1){	
+			$bhours = array ('Monday' => 8,'Tuesday' => 8,'Wednesday' => 8, 'Thursday' => 8, 'Friday' => 8, 'Saturday' => 0, 'Sunday' => 0);
+		}
+		//---------------------------
+		
+
+
 
         //create project from template
         $project = new Project();
@@ -101,6 +155,7 @@ class AM_ProjectTemplatesController extends SugarController {
         $count=1;
         while($row = $db->fetchByAssoc($tasks))
         {
+
             $project_task = new ProjectTask();
             $project_task->name = $row['name'];
             $project_task->status = $row['status'];
@@ -126,9 +181,33 @@ class AM_ProjectTemplatesController extends SugarController {
             //Flag to prevent after save logichook running when project_tasks are created (see custom/modules/ProjectTask/updateProject.php)
             $project_task->set_project_end_date = 0;
 
+
+
+            //
+            //code block to calculate end date based on user's business hours
+            //
+
+            $duration = $project_task->duration;
+            $enddate = $startdate;
+
+            $d = 0;
+
+            while($duration > $d){
+			$day = $enddate->format('l');
+
+			if($bhours[$day] != 0 ){
+				$d += 1;	
+			}
+			$enddate = $enddate->modify('+1 Days');
+            } 
+            $enddate = $enddate->modify('-1 Days');//readjust it back to remove 1 additional day added
+
+            //----------------------------------
+
+
+
             if($count == '1'){
                 $project_task->date_start = $start;
-                $enddate = $startdate->modify('+'.$row['duration'].' '.$duration_unit);
                 $end = $enddate->format('Y-m-d');
                 $project_task->date_finish = $end;
                 $enddate_array[$count] = $end;
@@ -137,10 +216,8 @@ class AM_ProjectTemplatesController extends SugarController {
             else {
                 $start_date = $count - 1;
                 $startdate = DateTime::createFromFormat('Y-m-d', $enddate_array[$start_date]);
-                $GLOBALS['log']->fatal("DATE:". $enddate_array[$start_date]);
                 $start = $startdate->format('Y-m-d');
                 $project_task->date_start = $start;
-                $enddate = $startdate->modify('+'.$row['duration'].' '.$duration_unit);
                 $end = $enddate->format('Y-m-d');
                 $project_task->date_finish = $end;
                 $enddate = $end;
@@ -157,7 +234,6 @@ class AM_ProjectTemplatesController extends SugarController {
         }
 
         //set project end date to the same as end date of the last task
-        $GLOBALS['log']->fatal("project end -- DATE:". $end);
 		$project->estimated_end_date = $end;
         $project->save();
 
@@ -434,3 +510,4 @@ class AM_ProjectTemplatesController extends SugarController {
 
 
 }
+
